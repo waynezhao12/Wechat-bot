@@ -5,15 +5,19 @@
  */
 // https://stackoverflow.com/a/42817956/1123955
 // https://github.com/motdotla/dotenv/issues/89#issuecomment-587753552
-import 'dotenv/config.js'
+import 'dotenv/config.js';
 import {
   Contact,
   Message,
   ScanStatus,
   WechatyBuilder,
   log,
-} from 'wechaty'
-import qrcodeTerminal from 'qrcode-terminal'
+} from 'wechaty';
+import qrcodeTerminal from 'qrcode-terminal';
+
+import { WeatherService } from './weather-query/weather-query.js';
+
+const weatherService = new WeatherService();
 
 function onScan(qrcode: string, status: ScanStatus) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
@@ -44,6 +48,46 @@ async function onMessage(msg: Message) {
   if (msg.text() === 'ding') {
     await msg.say('dong')
   }
+
+  if (msg.text() === '太笨了') {
+    await msg.say('你才笨')
+  }
+
+  if (msg.text() === '很聪明') {
+    await msg.say('确实')
+  }
+
+  const cityIndex = msg.text().indexOf('天气')
+  if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
+    weatherService.getWeather(msg.text().slice(0, cityIndex)).then(
+      res => {
+        log.info('Weather', res)
+        msg.say(res)
+      },
+      err => {
+        log.error('StarterBot', err)
+        msg.say('可莉不知道哦')
+      }
+    )
+  }
+
+  const calculateIndex = msg.text().indexOf('计算')
+  if (calculateIndex !== -1 && calculateIndex === 0) {
+    let expression = msg.text().slice(2)
+    expression = expression.replaceAll('×', '*')
+    expression = expression.replaceAll('÷', '/')
+    expression = expression.replaceAll('/', '/')
+    expression = expression.replaceAll('（', '(')
+    expression = expression.replaceAll('）', ')')
+    try {
+      log.info('expression', expression)
+      const result = eval(expression)
+      log.info('Calc', result)
+      await msg.say(`${result}`)
+    } catch (error) {
+      await msg.say('可莉不知道哦')
+    }
+  }
 }
 
 const bot = WechatyBuilder.build({
@@ -60,7 +104,10 @@ const bot = WechatyBuilder.build({
    *  - wechaty-puppet-padlocal (pad protocol, token required)
    *  - etc. see: <https://wechaty.js.org/docs/puppet-providers/>
    */
-  puppet: 'wechaty-puppet-wechat'
+  puppet: 'wechaty-puppet-wechat',
+  puppetOptions: {
+    uos: true  // 开启uos协议
+  },
 
   /**
    * You can use wechaty puppet provider 'wechaty-puppet-service'
