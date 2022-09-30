@@ -20,45 +20,38 @@ export class WeatherService {
     const geoCall = await this.getGeoID(cityName).then(
       result => {
         geoInfo = result.data.location[0]
-        // log.info('Geo response', geoInfo.code)
-        // log.info('Geo response', JSON.stringify(geoInfo))
       },
       error => {
-        log.error('StarterBot', error)
+        log.error('geo', error)
       }
     )
     const weatherCall = await this.getCurrentWeather(geoInfo.id).then(
       result => {
         weatherInfo = result.data.now
-        // log.info('Weather response', JSON.stringify(weatherInfo))
       },
       error => {
-        log.error('StarterBot', error)
+        log.error('weather', error)
       }
     )
     const airCall = await this.getCurrentAirQuality(geoInfo.id).then(
       result => {
         airInfo = result.data.now
-        // log.info('Weather response', JSON.stringify(weatherInfo))
       },
       error => {
-        log.error('StarterBot', error)
+        log.error('air', error)
       }
     )
     const indicesCall = await this.getCurrentIndices(geoInfo.id).then(
       result => {
         indicesInfo = result.data.daily[0]
-        // log.info('Weather response', JSON.stringify(weatherInfo))
       },
       error => {
-        log.error('StarterBot', error)
+        log.error('indices', error)
       }
     )
 
-    log.info('Weather response', JSON.stringify(weatherInfo))
-
     let fullName = geoInfo.name === geoInfo.adm2 ? geoInfo.adm1 + geoInfo.name : geoInfo.adm2 + geoInfo.name
-    weather = await
+    weather =
       `${fullName}当前天气：
       天气：${weatherInfo.text}
       温度：${weatherInfo.temp}°C
@@ -68,9 +61,6 @@ export class WeatherService {
       能见度${weatherInfo.vis}公里
       空气质量${airInfo.aqi}，${airInfo.category}
       紫外线指数${indicesInfo.level}，${indicesInfo.category}`
-
-    log.info('Weather response', weather)
-
     return weather
   }
 
