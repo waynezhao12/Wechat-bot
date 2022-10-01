@@ -5,19 +5,21 @@
  */
 // https://stackoverflow.com/a/42817956/1123955
 // https://github.com/motdotla/dotenv/issues/89#issuecomment-587753552
-import 'dotenv/config.js';
+import 'dotenv/config.js'
 import {
   Contact,
   Message,
   ScanStatus,
   WechatyBuilder,
   log,
-} from 'wechaty';
-import qrcodeTerminal from 'qrcode-terminal';
+} from 'wechaty'
+import qrcodeTerminal from 'qrcode-terminal'
 
-import { WeatherService } from './weather-query/weather-query.js';
+import { WeatherService } from './weather-query/weather-query.js'
+import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js'
 
-const weatherService = new WeatherService();
+const weatherService = new WeatherService()
+const pixivService = new PixivLookupService()
 
 function onScan(qrcode: string, status: ScanStatus) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
@@ -44,6 +46,18 @@ function onLogout(user: Contact) {
 
 async function onMessage(msg: Message) {
   log.info('Receive Message', msg.toString())
+
+  if (msg.type() === bot.Message.Type.Image) {
+    console.log('image');
+    pixivService.getImg(msg).then(
+      res => {
+        msg.say(res)
+      },
+      err => {
+        // msg.say('可莉不知道哦')
+      }
+    )
+  }
 
   if (msg.text() === 'ding') {
     await msg.say('dong')
@@ -84,6 +98,17 @@ async function onMessage(msg: Message) {
     } catch (error) {
       await msg.say('可莉不知道哦')
     }
+  }
+
+  if (await msg.mentionSelf()) {
+    const room = msg.room()
+    if (!room) {
+      throw new Error('Should never reach here: a mention message must in a room')
+    }
+    const who = msg.talker()
+    console.log('this message were mentioned me! [You were mentioned] tip ([有人@我]的提示)')
+    console.log(who)
+    await room.say('干啥', who)
   }
 }
 
