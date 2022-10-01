@@ -14,6 +14,7 @@ import {
   log,
 } from 'wechaty'
 import qrcodeTerminal from 'qrcode-terminal'
+import axios from 'axios'
 
 import { WeatherService } from './weather-query/weather-query.js'
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js'
@@ -49,8 +50,9 @@ async function onMessage(msg: Message) {
 
   if (msg.type() === bot.Message.Type.Image) {
     console.log('image');
-    pixivService.getImg(msg).then(
+    await pixivService.getImg(msg).then(
       res => {
+        console.log(res)
         msg.say(res)
       },
       err => {
@@ -73,7 +75,7 @@ async function onMessage(msg: Message) {
 
   const cityIndex = msg.text().indexOf('天气')
   if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
-    weatherService.getWeather(msg.text().slice(0, cityIndex)).then(
+    await weatherService.getWeather(msg, msg.text().slice(0, cityIndex)).then(
       res => {
         log.info('Weather', res)
         msg.say(res)
@@ -107,8 +109,14 @@ async function onMessage(msg: Message) {
     }
     const who = msg.talker()
     console.log('this message were mentioned me! [You were mentioned] tip ([有人@我]的提示)')
-    console.log(who)
-    await room.say('干啥', who)
+    axios.get('https://api.shadiao.pro/chp').then(
+      res => {
+        room.say(res.data.data.text, who)
+      },
+      err => {
+        room.say('干啥', who)
+      }
+    )
   }
 }
 
