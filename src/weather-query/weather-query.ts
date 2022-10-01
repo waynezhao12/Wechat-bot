@@ -11,11 +11,7 @@ export class WeatherService {
   private indicesApi = 'https://devapi.qweather.com/v7/indices/1d?'
 
   public async getWeather(cityName: string): Promise<any> {
-    let weather
-    let geoInfo
-    let weatherInfo
-    let airInfo
-    let indicesInfo
+    let weather, geoInfo, weatherInfo, airInfo, indicesInfo
 
     const geoCall = await this.getGeoID(cityName).then(
       result => {

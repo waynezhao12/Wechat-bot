@@ -76,7 +76,6 @@ async function onMessage(msg: Message) {
     let expression = msg.text().slice(2)
     expression = expression.replaceAll('×', '*')
     expression = expression.replaceAll('÷', '/')
-    expression = expression.replaceAll('/', '/')
     expression = expression.replaceAll('（', '(')
     expression = expression.replaceAll('）', ')')
     try {
