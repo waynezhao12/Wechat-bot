@@ -1,5 +1,5 @@
 
-import { log } from 'wechaty';
+import { log, Message } from 'wechaty';
 import axios from 'axios';
 
 export class WeatherService {
@@ -10,7 +10,7 @@ export class WeatherService {
   private airApi = 'https://devapi.qweather.com/v7/air/now?'
   private indicesApi = 'https://devapi.qweather.com/v7/indices/1d?'
 
-  public async getWeather(cityName: string): Promise<any> {
+  public async getWeather(msg: Message, cityName: string): Promise<any> {
     let weather, geoInfo, weatherInfo, airInfo, indicesInfo
 
     const geoCall = await this.getGeoID(cityName).then(
@@ -19,6 +19,7 @@ export class WeatherService {
       },
       error => {
         log.error('geo', error)
+        msg.say('获取地理信息失败')
       }
     )
     const weatherCall = await this.getCurrentWeather(geoInfo.id).then(
@@ -27,6 +28,7 @@ export class WeatherService {
       },
       error => {
         log.error('weather', error)
+        msg.say('获取天气失败')
       }
     )
     const airCall = await this.getCurrentAirQuality(geoInfo.id).then(
@@ -35,6 +37,7 @@ export class WeatherService {
       },
       error => {
         log.error('air', error)
+        msg.say('获取空气指数失败')
       }
     )
     const indicesCall = await this.getCurrentIndices(geoInfo.id).then(
@@ -43,6 +46,7 @@ export class WeatherService {
       },
       error => {
         log.error('indices', error)
+        msg.say('获取生活指数失败')
       }
     )
 
