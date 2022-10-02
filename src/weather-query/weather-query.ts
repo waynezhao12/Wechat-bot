@@ -16,7 +16,8 @@ export class WeatherService {
     const geoCall = await this.getGeoID(cityName).then(
       result => {
         geoInfo = result.data.location[0]
-      },
+      }
+    ).catch(
       error => {
         log.error('geo', error)
         msg.say('获取地理信息失败')
@@ -25,7 +26,8 @@ export class WeatherService {
     const weatherCall = await this.getCurrentWeather(geoInfo.id).then(
       result => {
         weatherInfo = result.data.now
-      },
+      }
+    ).catch(
       error => {
         log.error('weather', error)
         msg.say('获取天气失败')
@@ -34,7 +36,8 @@ export class WeatherService {
     const airCall = await this.getCurrentAirQuality(geoInfo.id).then(
       result => {
         airInfo = result.data.now
-      },
+      }
+    ).catch(
       error => {
         log.error('air', error)
         msg.say('获取空气指数失败')
@@ -43,7 +46,8 @@ export class WeatherService {
     const indicesCall = await this.getCurrentIndices(geoInfo.id).then(
       result => {
         indicesInfo = result.data.daily[0]
-      },
+      }
+    ).catch(
       error => {
         log.error('indices', error)
         msg.say('获取生活指数失败')

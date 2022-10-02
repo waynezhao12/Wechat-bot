@@ -14,7 +14,8 @@ export class PixivLookupService {
     await this.getBaseImg(msg).then(
       result => {
         baseImg = result
-      },
+      }
+    ).catch(
       error => {
         console.log(error);
         msg.say('获取图片失败')
@@ -24,7 +25,8 @@ export class PixivLookupService {
     await this.uploadImg(baseImg).then(
       result => {
         catboxUrl = '' + result
-      },
+      }
+    ).catch(
       error => {
         console.log(error);
         msg.say('上传图片失败')
@@ -47,7 +49,8 @@ export class PixivLookupService {
         // console.log(JSON.stringify(res.data));
         console.log(JSON.stringify(queryResult));
         console.log('=====');
-      },
+      }
+    ).catch(
       error => {
         console.log('++++');
         console.log(error);
@@ -61,6 +64,9 @@ export class PixivLookupService {
     })
 
     formatResult =
+      `查询结果：
+      `
+    let tmpResult =
       `查询结果：
       `
     // queryResult.forEach(element => {
@@ -84,16 +90,20 @@ export class PixivLookupService {
     // });
     queryResult.forEach(element => {
       console.log(element);
-
-      formatResult +=
-        `
+      if (element.header.similarity >= 45) {
+        formatResult +=
+          `
         标题：${element.data.title || null}
         作者：${element.data.member_name || element.data.jp_name || element.data.eng_name || element.data.creator || element.data.author_name || null}
         相似度：${element.header.similarity || null}
         链接：${element.data.ext_urls && element.data.ext_urls[0] ? element.data.ext_urls[0] : null}
         缩略图：${element.header.thumbnail || null}
         `
+      }
     })
+    if (formatResult === tmpResult) {
+      formatResult = '可莉不知道哦'
+    }
     console.log(formatResult)
     return formatResult
   }

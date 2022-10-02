@@ -54,8 +54,10 @@ async function onMessage(msg: Message) {
       res => {
         console.log(res)
         msg.say(res)
-      },
+      }
+    ).catch(
       err => {
+        console.log(err)
         // msg.say('可莉不知道哦')
       }
     )
@@ -79,10 +81,11 @@ async function onMessage(msg: Message) {
       res => {
         log.info('Weather', res)
         msg.say(res)
-      },
+      }
+    ).catch(
       err => {
         log.error('Weather', err)
-        msg.say('可莉不知道哦')
+        // msg.say('可莉不知道哦')
       }
     )
   }
@@ -112,8 +115,10 @@ async function onMessage(msg: Message) {
     axios.get('https://api.shadiao.pro/chp').then(
       res => {
         room.say(res.data.data.text, who)
-      },
+      }
+    ).catch(
       err => {
+        console.log(err)
         room.say('干啥', who)
       }
     )
