@@ -16,6 +16,7 @@ import {
 } from 'wechaty';
 import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
+import { FileBox } from 'file-box';
 
 import { weatherPush, timeTexts } from './schedule-service/schedule-service.js';
 import { dailyNewsPush } from './schedule-service/daily-news-service.js';
@@ -48,6 +49,8 @@ const animeService = new AnimeLookupService();
 const calculatorService = new CalculatorService();
 
 let lastPic: Message;
+let lastMsg: Message;
+let sameMsgCount: number = 0;
 
 function onScan(qrcode: string, status: ScanStatus) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
@@ -77,6 +80,10 @@ function onLogout(user: Contact) {
 
 async function onMessage(msg: Message) {
   log.info('Receive Message', [msg, msg.type().toString()]);
+
+  if (msg.type() === bot.Message.Type.Text && !msg.self()) {
+    checkRepeatMsg(msg);
+  }
 
   if (msg.type() === bot.Message.Type.Image) {
     saveImage(msg);
@@ -172,8 +179,6 @@ async function onMessage(msg: Message) {
     }
   }
 
-
-
   const calculateIndex = msg.text().indexOf('计算');
   if (calculateIndex !== -1 && calculateIndex === 0) {
     calculatorService.calculator(msg);
@@ -181,6 +186,31 @@ async function onMessage(msg: Message) {
 }
 
 // Custom functions
+
+function checkRepeatMsg(msg: Message) {
+  if (lastMsg) {
+    if (lastMsg.text() === msg.text()) {
+      console.log('same msg');
+      sameMsgCount += 1;
+      if (sameMsgCount === 2) {
+        if (lastMsg.type() === bot.Message.Type.Text) {
+          msg.say(lastMsg.text());
+        } else if (lastMsg.type() === bot.Message.Type.Image) {
+          msg.say('打断施法！');
+        } else {
+          msg.say('打断施法！');
+        }
+        sameMsgCount = -1;
+      }
+    } else {
+      lastMsg = msg;
+      sameMsgCount = 0;
+    }
+  } else {
+    lastMsg = msg;
+    sameMsgCount = 0;
+  }
+}
 
 function saveImage(msg: Message) {
   console.log('image');
