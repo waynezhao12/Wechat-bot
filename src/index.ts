@@ -150,7 +150,7 @@ async function onMessage(msg: Message) {
       )
     }
   } else if (msg.text().indexOf('天气') !== -1) {
-    const cityIndex = msg.text().indexOf('今天天气');
+    const cityIndex = msg.text().indexOf('天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
       await weatherService.getWeather(msg, msg.text().slice(0, cityIndex)).then(
         res => {
