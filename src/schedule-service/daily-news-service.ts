@@ -15,14 +15,12 @@ export async function dailyNewsPush(bot: WechatyInterface) {
 		try {
 			await axios.get(api).then(
 				result => {
-					console.log(result);
 					roomList.forEach(room => {
 						room.say(FileBox.fromUrl(result.data.tp))
 					})
 				}
 			).catch(
 				error => {
-					log.error('geo', error);
 					throw new Error("获取新闻失败");
 				}
 			)

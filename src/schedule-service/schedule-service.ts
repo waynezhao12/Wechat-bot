@@ -14,14 +14,12 @@ export async function weatherPush(bot: WechatyInterface) {
 		try {
 			await weatherService.getWeather('徐州').then(
 				res => {
-					log.info('Weather', res);
 					roomList.forEach(room => {
 						room.say(res)
 					})
 				}
 			).catch(
 				err => {
-					log.error('Weather', err);
 					roomList.forEach(room => {
 						room.say(err)
 					})

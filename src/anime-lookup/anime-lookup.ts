@@ -13,29 +13,30 @@ export class AnimeLookupService {
       }
     ).catch(
       error => {
-        console.log(error);
-        msg.say('获取图片失败');
+        throw new Error("获取图片失败");
       }
     )
-
+    await msg.say('查询中...');
     await this.queryImg(baseImg).then(
       result => {
         queryResult = result.data.result;
-        console.log(queryResult);
-
+        fs.unlink(baseImg, err => {
+          if (err) console.log(err);
+          console.log('删除图片成功');
+        })
+        if (!queryResult) {
+          throw new Error("查询图片失败");
+        }
       }
     ).catch(
       error => {
-        console.log('++++');
-        console.log(error);
-        msg.say('查询图片失败');
+        fs.unlink(baseImg, err => {
+          if (err) console.log(err);
+          console.log('删除图片成功');
+        })
+        throw new Error("查询图片失败");
       }
     )
-
-    fs.unlink(baseImg, err => {
-      if (err) console.log(err);
-      console.log('删除图片成功');
-    })
 
     formatResult =
       `查询结果：
@@ -43,23 +44,24 @@ export class AnimeLookupService {
     let tmpResult =
       `查询结果：
       `;
-    queryResult.forEach((element, index) => {
-      if (element.similarity >= 0.45) {
-        formatResult +=
-          `
-        文件名：${element.filename || null}
-        相似度：${element.similarity || null}
-        起始位置：${element.from || null}
-        视频：${element.video || null}
-        图片：${element.image || null}
-        `
-      }
-      if (index === 2) return;
-    });
+    if (queryResult && queryResult.length > 0) {
+      queryResult.forEach((element, index) => {
+        if (element.similarity >= 0.45) {
+          formatResult +=
+            `
+            文件名：${element.filename || null}
+            相似度：${element.similarity || null}
+            起始位置：${element.from || null}
+            视频：${element.video || null}
+            图片：${element.image || null}
+            `
+        }
+        if (index === 2) return;
+      });
+    }
     if (formatResult === tmpResult) {
       formatResult = '可莉不知道哦';
     }
-    console.log(formatResult);
     return formatResult;
   }
 
