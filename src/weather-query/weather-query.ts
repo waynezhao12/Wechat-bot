@@ -3,54 +3,61 @@ import { log, Message } from 'wechaty';
 import axios from 'axios';
 
 export class WeatherService {
-  private publicID = 'HE2209302107111773'
-  private key = '6892d0322db34c6e858e87ba1497077c'
-  private weatherApi = 'https://devapi.qweather.com/v7/weather/now?'
-  private geoApi = 'https://geoapi.qweather.com/v2/city/lookup?'
-  private airApi = 'https://devapi.qweather.com/v7/air/now?'
-  private indicesApi = 'https://devapi.qweather.com/v7/indices/1d?'
+  private publicID = 'HE2209302107111773';
+  private key = '6892d0322db34c6e858e87ba1497077c';
+  private weatherApi = 'https://devapi.qweather.com/v7/weather/now?';
+  private threeDaysWeatherApi = 'https://devapi.qweather.com/v7/weather/3d?';
+  private geoApi = 'https://geoapi.qweather.com/v2/city/lookup?';
+  private airApi = 'https://devapi.qweather.com/v7/air/now?';
+  private indicesApi = 'https://devapi.qweather.com/v7/indices/1d?';
+
+  private geoInfo;
 
   public async getWeather(msg: Message, cityName: string): Promise<any> {
-    let weather, geoInfo, weatherInfo, airInfo, indicesInfo
+    let weather, weatherInfo, airInfo, indicesInfo;
 
-    const geoCall = await this.getGeoID(cityName).then(
-      result => {
-        geoInfo = result.data.location[0]
-      },
-      error => {
-        log.error('geo', error)
-        msg.say('获取地理信息失败')
+    await this.getGeoID(cityName).then(
+      res => {
+        this.geoInfo = res;
+      }
+    ).catch(
+      err => {
+        log.error('geogeo', err);
+        msg.say(err);
       }
     )
-    const weatherCall = await this.getCurrentWeather(geoInfo.id).then(
+    const weatherCall = await this.getCurrentWeatherRequest(this.geoInfo.id).then(
       result => {
-        weatherInfo = result.data.now
-      },
+        weatherInfo = result.data.now;
+      }
+    ).catch(
       error => {
-        log.error('weather', error)
-        msg.say('获取天气失败')
+        log.error('weather', error);
+        msg.say('获取天气失败');
       }
     )
-    const airCall = await this.getCurrentAirQuality(geoInfo.id).then(
+    const airCall = await this.getCurrentAirQualityRequest(this.geoInfo.id).then(
       result => {
-        airInfo = result.data.now
-      },
+        airInfo = result.data.now;
+      }
+    ).catch(
       error => {
-        log.error('air', error)
-        msg.say('获取空气指数失败')
+        log.error('air', error);
+        msg.say('获取空气指数失败');
       }
     )
-    const indicesCall = await this.getCurrentIndices(geoInfo.id).then(
+    const indicesCall = await this.getCurrentIndicesRequest(this.geoInfo.id).then(
       result => {
-        indicesInfo = result.data.daily[0]
-      },
+        indicesInfo = result.data.daily[0];
+      }
+    ).catch(
       error => {
-        log.error('indices', error)
-        msg.say('获取生活指数失败')
+        log.error('indices', error);
+        msg.say('获取生活指数失败');
       }
     )
 
-    let fullName = geoInfo.name === geoInfo.adm2 ? geoInfo.adm1 + geoInfo.name : geoInfo.adm2 + geoInfo.name
+    let fullName = this.geoInfo.name === this.geoInfo.adm2 ? this.geoInfo.adm1 + this.geoInfo.name : this.geoInfo.adm2 + this.geoInfo.name;
     weather =
       `${fullName}当前天气：
       天气：${weatherInfo.text}
@@ -60,24 +67,94 @@ export class WeatherService {
       ${weatherInfo.windDir}${weatherInfo.windScale}级
       能见度${weatherInfo.vis}公里
       空气质量${airInfo.aqi}，${airInfo.category}
-      紫外线指数${indicesInfo.level}，${indicesInfo.category}`
-    return weather
+      紫外线指数${indicesInfo.level}，${indicesInfo.category}`;
+    return weather;
   }
 
-  private getGeoID(cityName: string): Promise<any> {
-    return axios.get(encodeURI(`${this.geoApi}location=${cityName}&key=${this.key}`))
+  public async getThreeDaysWeather(msg: Message, cityName: string, whichDay: string): Promise<any> {
+    let weather, weatherInfo;
+
+    await this.getGeoID(cityName).then(
+      res => {
+        this.geoInfo = res;
+      }
+    ).catch(
+      err => {
+        log.error('geogeo', err);
+        msg.say(err);
+      }
+    )
+    const weatherCall = await this.getThreeDaysWeatherRequest(this.geoInfo.id).then(
+      result => {
+        weatherInfo = result.data.daily;
+      }
+    ).catch(
+      error => {
+        log.error('weather', error);
+        msg.say('获取天气失败');
+      }
+    )
+
+    let dayIndex = 0;
+
+    switch (whichDay) {
+      case '今天':
+        dayIndex = 0
+        break;
+      case '明天':
+        dayIndex = 1
+        break;
+      case '后天':
+        dayIndex = 2
+        break;
+      default:
+        dayIndex = 0
+        break;
+    }
+
+    let fullName = this.geoInfo.name === this.geoInfo.adm2 ? this.geoInfo.adm1 + this.geoInfo.name : this.geoInfo.adm2 + this.geoInfo.name;
+    weather =
+      `${fullName}${whichDay}天气：
+      白天：${weatherInfo[dayIndex].textDay}
+      ${weatherInfo[dayIndex].windDirDay}${weatherInfo[dayIndex].windScaleDay}级
+      夜间：${weatherInfo[dayIndex].textDay}
+      ${weatherInfo[dayIndex].windDirNight}${weatherInfo[dayIndex].windScaleNight}级
+      温度：${weatherInfo[dayIndex].tempMin} - ${weatherInfo[dayIndex].tempMax}°C
+      湿度：${weatherInfo[dayIndex].humidity}°C
+      能见度${weatherInfo[dayIndex].vis}公里
+      紫外线指数${weatherInfo[dayIndex].uvIndex}级`;
+    return weather;
   }
 
-  private getCurrentWeather(geoID: string): Promise<any> {
-    return axios.get(encodeURI(`${this.weatherApi}location=${geoID}&key=${this.key}`))
+  private async getGeoID(cityName: string): Promise<string> {
+    let geoId;
+    await axios.get(encodeURI(`${this.geoApi}location=${cityName}&key=${this.key}`)).then(
+      result => {
+        geoId = result.data.location[0];
+      }
+    ).catch(
+      error => {
+        log.error('geo', error);
+        throw new Error("获取地理信息失败");
+      }
+    )
+    return geoId;
   }
 
-  private getCurrentAirQuality(geoID: string): Promise<any> {
-    return axios.get(encodeURI(`${this.airApi}location=${geoID}&key=${this.key}`))
+  private getCurrentWeatherRequest(geoID: string): Promise<any> {
+    return axios.get(encodeURI(`${this.weatherApi}location=${geoID}&key=${this.key}`));
   }
 
-  private getCurrentIndices(geoID: string): Promise<any> {
-    return axios.get(encodeURI(`${this.indicesApi}type=5&location=${geoID}&key=${this.key}`))
+  private getCurrentAirQualityRequest(geoID: string): Promise<any> {
+    return axios.get(encodeURI(`${this.airApi}location=${geoID}&key=${this.key}`));
+  }
+
+  private getCurrentIndicesRequest(geoID: string): Promise<any> {
+    return axios.get(encodeURI(`${this.indicesApi}type=5&location=${geoID}&key=${this.key}`));
+  }
+
+  private getThreeDaysWeatherRequest(geoID: string): Promise<any> {
+    return axios.get(encodeURI(`${this.threeDaysWeatherApi}location=${geoID}&key=${this.key}`));
   }
 }
 
