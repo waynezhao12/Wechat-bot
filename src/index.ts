@@ -79,9 +79,9 @@ function onLogout(user: Contact) {
 }
 
 async function onMessage(msg: Message) {
-  log.info('Receive Message', [msg, msg.type().toString()]);
+  log.info('Receive Message', [msg.text(), msg.type().toString()]);
 
-  if (msg.type() === bot.Message.Type.Text && !msg.self()) {
+  if (!msg.self()) {
     checkRepeatMsg(msg);
   }
 
@@ -193,13 +193,17 @@ function checkRepeatMsg(msg: Message) {
       console.log('same msg');
       sameMsgCount += 1;
       if (sameMsgCount === 2) {
-        if (lastMsg.type() === bot.Message.Type.Text) {
-          msg.say(lastMsg.text());
-        } else if (lastMsg.type() === bot.Message.Type.Image) {
-          msg.say('打断施法！');
-        } else {
-          msg.say('打断施法！');
+        let room = msg.room();
+        if (room) {
+          msg.forward(room);
         }
+        // if (lastMsg.type() === bot.Message.Type.Text) {
+        //   msg.say(lastMsg.text());
+        // } else if (lastMsg.type() === bot.Message.Type.Image) {
+        //   msg.say('打断施法！');
+        // } else {
+        //   msg.say('打断施法！');
+        // }
         sameMsgCount = -1;
       }
     } else {
