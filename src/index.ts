@@ -17,7 +17,7 @@ import {
 import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
 
-import { weatherPush } from './schedule-service/schedule-service.js';
+import { weatherPush, timeTexts } from './schedule-service/schedule-service.js';
 import { dailyNewsPush } from './schedule-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
@@ -68,6 +68,7 @@ function onLogin(user: Contact) {
   log.info('Login Status', '%s login', user);
   weatherPush(bot);
   dailyNewsPush(bot);
+  timeTexts(bot);
 }
 
 function onLogout(user: Contact) {
