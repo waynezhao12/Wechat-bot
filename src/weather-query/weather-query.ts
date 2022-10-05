@@ -13,7 +13,7 @@ export class WeatherService {
 
   private geoInfo;
 
-  public async getWeather(msg: Message, cityName: string): Promise<any> {
+  public async getWeather(cityName: string): Promise<any> {
     let weather, weatherInfo, airInfo, indicesInfo;
 
     await this.getGeoID(cityName).then(
@@ -23,7 +23,7 @@ export class WeatherService {
     ).catch(
       err => {
         log.error('geogeo', err);
-        msg.say(err);
+        throw new Error(err);
       }
     )
     const weatherCall = await this.getCurrentWeatherRequest(this.geoInfo.id).then(
@@ -33,7 +33,7 @@ export class WeatherService {
     ).catch(
       error => {
         log.error('weather', error);
-        msg.say('获取天气失败');
+        throw new Error(error);
       }
     )
     const airCall = await this.getCurrentAirQualityRequest(this.geoInfo.id).then(
@@ -43,7 +43,7 @@ export class WeatherService {
     ).catch(
       error => {
         log.error('air', error);
-        msg.say('获取空气指数失败');
+        throw new Error(error);
       }
     )
     const indicesCall = await this.getCurrentIndicesRequest(this.geoInfo.id).then(
@@ -53,7 +53,7 @@ export class WeatherService {
     ).catch(
       error => {
         log.error('indices', error);
-        msg.say('获取生活指数失败');
+        throw new Error(error);
       }
     )
 
@@ -71,7 +71,7 @@ export class WeatherService {
     return weather;
   }
 
-  public async getThreeDaysWeather(msg: Message, cityName: string, whichDay: string): Promise<any> {
+  public async getThreeDaysWeather(cityName: string, whichDay: string): Promise<any> {
     let weather, weatherInfo;
 
     await this.getGeoID(cityName).then(
@@ -81,7 +81,7 @@ export class WeatherService {
     ).catch(
       err => {
         log.error('geogeo', err);
-        msg.say(err);
+        throw new Error(err);
       }
     )
     const weatherCall = await this.getThreeDaysWeatherRequest(this.geoInfo.id).then(
@@ -91,7 +91,7 @@ export class WeatherService {
     ).catch(
       error => {
         log.error('weather', error);
-        msg.say('获取天气失败');
+        throw new Error(error);
       }
     )
 

@@ -17,6 +17,9 @@ import {
 import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
 
+import { weatherPush } from './schedule-service/schedule-service.js';
+import { dailyNewsPush } from './schedule-service/daily-news-service.js';
+
 import { WeatherService } from './weather-query/weather-query.js';
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
 import { AnimeLookupService } from './anime-lookup/anime-lookup.js';
@@ -63,6 +66,8 @@ function onScan(qrcode: string, status: ScanStatus) {
 
 function onLogin(user: Contact) {
   log.info('Login Status', '%s login', user);
+  weatherPush(bot);
+  dailyNewsPush(bot);
 }
 
 function onLogout(user: Contact) {
@@ -107,7 +112,7 @@ async function onMessage(msg: Message) {
   if (msg.text().indexOf('今天天气') !== -1) {
     const cityIndex = msg.text().indexOf('今天天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getThreeDaysWeather(msg, msg.text().slice(0, cityIndex), '今天').then(
+      await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '今天').then(
         res => {
           log.info('Weather', res);
           msg.say(res);
@@ -115,14 +120,14 @@ async function onMessage(msg: Message) {
       ).catch(
         err => {
           log.error('Weather', err);
-          // msg.say('可莉不知道哦');
+          msg.say(err);
         }
       )
     }
   } else if (msg.text().indexOf('明天天气') !== -1) {
     const cityIndex = msg.text().indexOf('明天天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getThreeDaysWeather(msg, msg.text().slice(0, cityIndex), '明天').then(
+      await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '明天').then(
         res => {
           log.info('Weather', res);
           msg.say(res);
@@ -130,14 +135,14 @@ async function onMessage(msg: Message) {
       ).catch(
         err => {
           log.error('Weather', err);
-          // msg.say('可莉不知道哦');
+          msg.say(err);
         }
       )
     }
   } else if (msg.text().indexOf('后天天气') !== -1) {
     const cityIndex = msg.text().indexOf('后天天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getThreeDaysWeather(msg, msg.text().slice(0, cityIndex), '后天').then(
+      await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '后天').then(
         res => {
           log.info('Weather', res);
           msg.say(res);
@@ -145,14 +150,14 @@ async function onMessage(msg: Message) {
       ).catch(
         err => {
           log.error('Weather', err);
-          // msg.say('可莉不知道哦');
+          msg.say(err);
         }
       )
     }
   } else if (msg.text().indexOf('天气') !== -1) {
     const cityIndex = msg.text().indexOf('天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
-      await weatherService.getWeather(msg, msg.text().slice(0, cityIndex)).then(
+      await weatherService.getWeather(msg.text().slice(0, cityIndex)).then(
         res => {
           log.info('Weather', res);
           msg.say(res);
@@ -160,7 +165,7 @@ async function onMessage(msg: Message) {
       ).catch(
         err => {
           log.error('Weather', err);
-          // msg.say('可莉不知道哦');
+          msg.say(err);
         }
       )
     }
