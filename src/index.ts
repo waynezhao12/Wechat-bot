@@ -104,20 +104,69 @@ async function onMessage(msg: Message) {
     await msg.say('确实');
   }
 
-  const cityIndex = msg.text().indexOf('天气');
-  if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
-    await weatherService.getWeather(msg, msg.text().slice(0, cityIndex)).then(
-      res => {
-        log.info('Weather', res);
-        msg.say(res);
-      }
-    ).catch(
-      err => {
-        log.error('Weather', err);
-        // msg.say('可莉不知道哦');
-      }
-    )
+  if (msg.text().indexOf('今天天气') !== -1) {
+    const cityIndex = msg.text().indexOf('今天天气');
+    if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
+      await weatherService.getThreeDaysWeather(msg, msg.text().slice(0, cityIndex), '今天').then(
+        res => {
+          log.info('Weather', res);
+          msg.say(res);
+        }
+      ).catch(
+        err => {
+          log.error('Weather', err);
+          // msg.say('可莉不知道哦');
+        }
+      )
+    }
+  } else if (msg.text().indexOf('明天天气') !== -1) {
+    const cityIndex = msg.text().indexOf('明天天气');
+    if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
+      await weatherService.getThreeDaysWeather(msg, msg.text().slice(0, cityIndex), '明天').then(
+        res => {
+          log.info('Weather', res);
+          msg.say(res);
+        }
+      ).catch(
+        err => {
+          log.error('Weather', err);
+          // msg.say('可莉不知道哦');
+        }
+      )
+    }
+  } else if (msg.text().indexOf('后天天气') !== -1) {
+    const cityIndex = msg.text().indexOf('后天天气');
+    if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
+      await weatherService.getThreeDaysWeather(msg, msg.text().slice(0, cityIndex), '后天').then(
+        res => {
+          log.info('Weather', res);
+          msg.say(res);
+        }
+      ).catch(
+        err => {
+          log.error('Weather', err);
+          // msg.say('可莉不知道哦');
+        }
+      )
+    }
+  } else if (msg.text().indexOf('天气') !== -1) {
+    const cityIndex = msg.text().indexOf('今天天气');
+    if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
+      await weatherService.getWeather(msg, msg.text().slice(0, cityIndex)).then(
+        res => {
+          log.info('Weather', res);
+          msg.say(res);
+        }
+      ).catch(
+        err => {
+          log.error('Weather', err);
+          // msg.say('可莉不知道哦');
+        }
+      )
+    }
   }
+
+
 
   const calculateIndex = msg.text().indexOf('计算');
   if (calculateIndex !== -1 && calculateIndex === 0) {
