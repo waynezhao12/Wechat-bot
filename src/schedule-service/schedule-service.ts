@@ -21,7 +21,7 @@ export async function weatherPush(bot: WechatyInterface) {
 			).catch(
 				err => {
 					roomList.forEach(room => {
-						room.say(err)
+						room.say(err + '')
 					})
 				}
 			)
@@ -32,7 +32,7 @@ export async function weatherPush(bot: WechatyInterface) {
 }
 
 export async function timeTexts(bot: WechatyInterface) {
-	schedule.scheduleJob('00 0 7 * * *', async () => {
+	schedule.scheduleJob('00 00 7 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
 			roomList.forEach(room => {

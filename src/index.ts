@@ -124,7 +124,7 @@ async function onMessage(msg: Message) {
         }
       ).catch(
         err => {
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
@@ -137,7 +137,7 @@ async function onMessage(msg: Message) {
         }
       ).catch(
         err => {
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
@@ -150,7 +150,7 @@ async function onMessage(msg: Message) {
         }
       ).catch(
         err => {
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
@@ -163,7 +163,7 @@ async function onMessage(msg: Message) {
         }
       ).catch(
         err => {
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
