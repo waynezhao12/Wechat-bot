@@ -17,8 +17,7 @@ export class PixivLookupService {
       }
     ).catch(
       error => {
-        console.log(error);
-        msg.say('获取图片失败');
+        throw new Error("获取图片失败");
       }
     )
 
@@ -28,30 +27,30 @@ export class PixivLookupService {
       }
     ).catch(
       error => {
-        console.log(error);
-        msg.say('上传图片失败');
+        throw new Error("上传图片失败");
       }
     )
-
+    await msg.say('查询中...');
     await this.queryPixiv(catboxUrl).then(
       res => {
         queryResult = res.data.results;
-        console.log('=====');
-        console.log(JSON.stringify(queryResult));
-        console.log('=====');
+        fs.unlink(baseImg, err => {
+          if (err) console.log(err);
+          console.log('删除图片成功');
+        })
+        if (!queryResult) {
+          throw new Error("查询图片失败");
+        }
       }
     ).catch(
       error => {
-        console.log('++++');
-        console.log(error);
-        msg.say('查询图片失败');
+        fs.unlink(baseImg, err => {
+          if (err) console.log(err);
+          console.log('删除图片成功');
+        })
+        throw new Error("查询图片失败");
       }
     )
-
-    fs.unlink(baseImg, err => {
-      if (err) console.log(err);
-      console.log('删除图片成功');
-    })
 
     formatResult =
       `查询结果：
@@ -59,23 +58,23 @@ export class PixivLookupService {
     let tmpResult =
       `查询结果：
       `;
-    queryResult.forEach(element => {
-      console.log(element);
-      if (element.header.similarity >= 45) {
-        formatResult +=
-          `
-        标题：${element.data.title || null}
-        作者：${element.data.member_name || element.data.jp_name || element.data.eng_name || element.data.creator || element.data.author_name || null}
-        相似度：${element.header.similarity || null}
-        链接：${element.data.ext_urls && element.data.ext_urls[0] ? element.data.ext_urls[0] : null}
-        缩略图：${element.header.thumbnail || null}
-        `;
-      }
-    })
+    if (queryResult && queryResult.length > 0) {
+      queryResult.forEach(element => {
+        if (element.header.similarity >= 45) {
+          formatResult +=
+            `
+            标题：${element.data.title || null}
+            作者：${element.data.member_name || element.data.jp_name || element.data.eng_name || element.data.creator || element.data.author_name || null}
+            相似度：${element.header.similarity || null}
+            链接：${element.data.ext_urls && element.data.ext_urls[0] ? element.data.ext_urls[0] : null}
+            缩略图：${element.header.thumbnail || null}
+            `;
+        }
+      })
+    }
     if (formatResult === tmpResult) {
       formatResult = '可莉不知道哦';
     }
-    console.log(formatResult);
     return formatResult;
   }
 

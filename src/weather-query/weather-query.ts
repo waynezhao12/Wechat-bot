@@ -22,7 +22,6 @@ export class WeatherService {
       }
     ).catch(
       err => {
-        log.error('geogeo', err);
         throw new Error(err);
       }
     )
@@ -32,7 +31,6 @@ export class WeatherService {
       }
     ).catch(
       error => {
-        log.error('weather', error);
         throw new Error(error);
       }
     )
@@ -42,7 +40,6 @@ export class WeatherService {
       }
     ).catch(
       error => {
-        log.error('air', error);
         throw new Error(error);
       }
     )
@@ -52,7 +49,6 @@ export class WeatherService {
       }
     ).catch(
       error => {
-        log.error('indices', error);
         throw new Error(error);
       }
     )
@@ -80,7 +76,6 @@ export class WeatherService {
       }
     ).catch(
       err => {
-        log.error('geogeo', err);
         throw new Error(err);
       }
     )
@@ -90,7 +85,6 @@ export class WeatherService {
       }
     ).catch(
       error => {
-        log.error('weather', error);
         throw new Error(error);
       }
     )
@@ -134,7 +128,6 @@ export class WeatherService {
       }
     ).catch(
       error => {
-        log.error('geo', error);
         throw new Error("获取地理信息失败");
       }
     )

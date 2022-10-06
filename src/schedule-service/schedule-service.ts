@@ -14,16 +14,14 @@ export async function weatherPush(bot: WechatyInterface) {
 		try {
 			await weatherService.getWeather('徐州').then(
 				res => {
-					log.info('Weather', res);
 					roomList.forEach(room => {
 						room.say(res)
 					})
 				}
 			).catch(
 				err => {
-					log.error('Weather', err);
 					roomList.forEach(room => {
-						room.say(err)
+						room.say(err + '')
 					})
 				}
 			)
@@ -34,7 +32,7 @@ export async function weatherPush(bot: WechatyInterface) {
 }
 
 export async function timeTexts(bot: WechatyInterface) {
-	schedule.scheduleJob('00 0 7 * * *', async () => {
+	schedule.scheduleJob('00 00 7 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
 			roomList.forEach(room => {

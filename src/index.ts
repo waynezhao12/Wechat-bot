@@ -16,6 +16,7 @@ import {
 } from 'wechaty';
 import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
+import { FileBox } from 'file-box';
 
 import { weatherPush, timeTexts } from './schedule-service/schedule-service.js';
 import { dailyNewsPush } from './schedule-service/daily-news-service.js';
@@ -48,6 +49,8 @@ const animeService = new AnimeLookupService();
 const calculatorService = new CalculatorService();
 
 let lastPic: Message;
+let lastMsg: Message;
+let sameMsgCount: number = 0;
 
 function onScan(qrcode: string, status: ScanStatus) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
@@ -76,15 +79,17 @@ function onLogout(user: Contact) {
 }
 
 async function onMessage(msg: Message) {
-  log.info('Receive Message', [msg, msg.type().toString()]);
+  log.info('Receive Message', [msg.text(), msg.type().toString()]);
+
+  if (!msg.self()) {
+    checkRepeatMsg(msg);
+  }
 
   if (msg.type() === bot.Message.Type.Image) {
     saveImage(msg);
   }
 
   if (await msg.mentionSelf()) {
-    console.log(lastPic);
-
     const room = msg.room();
     if (!room) {
       throw new Error('Should never reach here: a mention message must in a room');
@@ -115,13 +120,11 @@ async function onMessage(msg: Message) {
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
       await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '今天').then(
         res => {
-          log.info('Weather', res);
           msg.say(res);
         }
       ).catch(
         err => {
-          log.error('Weather', err);
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
@@ -130,13 +133,11 @@ async function onMessage(msg: Message) {
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
       await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '明天').then(
         res => {
-          log.info('Weather', res);
           msg.say(res);
         }
       ).catch(
         err => {
-          log.error('Weather', err);
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
@@ -145,13 +146,11 @@ async function onMessage(msg: Message) {
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
       await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '后天').then(
         res => {
-          log.info('Weather', res);
           msg.say(res);
         }
       ).catch(
         err => {
-          log.error('Weather', err);
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
@@ -160,19 +159,15 @@ async function onMessage(msg: Message) {
     if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
       await weatherService.getWeather(msg.text().slice(0, cityIndex)).then(
         res => {
-          log.info('Weather', res);
           msg.say(res);
         }
       ).catch(
         err => {
-          log.error('Weather', err);
-          msg.say(err);
+          msg.say(err + '');
         }
       )
     }
   }
-
-
 
   const calculateIndex = msg.text().indexOf('计算');
   if (calculateIndex !== -1 && calculateIndex === 0) {
@@ -182,24 +177,47 @@ async function onMessage(msg: Message) {
 
 // Custom functions
 
+function checkRepeatMsg(msg: Message) {
+  if (lastMsg) {
+    if (lastMsg.text() === msg.text()) {
+      console.log('same msg');
+      sameMsgCount += 1;
+      if (sameMsgCount === 2) {
+        let room = msg.room();
+        if (room) {
+          msg.forward(room);
+        }
+        sameMsgCount = -1;
+      }
+    } else {
+      lastMsg = msg;
+      sameMsgCount = 0;
+    }
+  } else {
+    lastMsg = msg;
+    sameMsgCount = 0;
+  }
+}
+
 function saveImage(msg: Message) {
-  console.log('image');
   lastPic = msg;
 }
 
 async function searchPixiv(msg: Message) {
   if (lastPic) {
-    await pixivService.getImg(msg).then(
-      res => {
-        console.log(res);
-        msg.say(res);
-      }
-    ).catch(
-      err => {
-        console.log(err);
-        // msg.say('可莉不知道哦');
-      }
-    )
+    try {
+      await pixivService.getImg(msg).then(
+        res => {
+          msg.say(res);
+        }
+      ).catch(
+        err => {
+          msg.say(err + '');
+        }
+      )
+    } catch (error) {
+      msg.say('可莉不知道哦');
+    }
   } else {
     msg.say('可莉把图片弄丢了');
   }
@@ -207,17 +225,19 @@ async function searchPixiv(msg: Message) {
 
 async function searchAnime(msg: Message) {
   if (lastPic) {
-    await animeService.getImg(msg).then(
-      res => {
-        console.log(res);
-        msg.say(res);
-      }
-    ).catch(
-      err => {
-        console.log(err);
-        // msg.say('可莉不知道哦');
-      }
-    )
+    try {
+      await animeService.getImg(msg).then(
+        res => {
+          msg.say(res);
+        }
+      ).catch(
+        err => {
+          msg.say(err + '');
+        }
+      )
+    } catch (error) {
+      msg.say('可莉不知道哦');
+    }
   } else {
     msg.say('可莉把图片弄丢了');
   }
@@ -225,14 +245,12 @@ async function searchAnime(msg: Message) {
 
 async function rainbowFart(msg: Message, room: Room) {
   const who = msg.talker();
-  console.log('@msg:' + msg);
   axios.get('https://api.shadiao.pro/chp').then(
     res => {
       room.say(res.data.data.text, who);
     }
   ).catch(
     err => {
-      console.log(err);
       room.say('干啥', who);
     }
   )
