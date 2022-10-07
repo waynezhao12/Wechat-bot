@@ -9,17 +9,21 @@ import { WeatherService } from '../weather-query/weather-query.js';
 const weatherService = new WeatherService();
 
 export async function weatherPush(bot: WechatyInterface) {
-	schedule.scheduleJob('00 0 7 * * *', async () => {
+	schedule.scheduleJob('00 01 7 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
-			await weatherService.getWeather('徐州').then(
+			await weatherService.getThreeDaysWeather('徐州', '今天').then(
 				res => {
+					console.log(res);
+					
 					roomList.forEach(room => {
 						room.say(res)
 					})
 				}
 			).catch(
 				err => {
+					console.log(err);
+					
 					roomList.forEach(room => {
 						room.say(err + '')
 					})
