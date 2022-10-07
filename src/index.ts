@@ -101,6 +101,8 @@ async function onMessage(msg: Message) {
       searchPixiv(lastPic);
     } else if (msg.text().includes('查番剧')) {
       searchAnime(lastPic);
+    } else if (msg.text().includes('油价')) {
+      queryFurlPrice(msg, room);
     } else {
       rainbowFart(msg, room);
     }
@@ -257,4 +259,33 @@ async function rainbowFart(msg: Message, room: Room) {
       room.say('干啥', who);
     }
   )
+}
+
+async function queryFurlPrice(msg: Message, room: Room) {
+  const cityIndex = msg.text().indexOf('油价');
+  const who = msg.talker();
+  if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
+    const name = msg.text().slice(10, cityIndex);
+    console.log(name);
+    await axios.get(encodeURI(`http://api.tianapi.com/oilprice/index?key=e877d0c19d79029e15dbcf4f5dea0738&prov=${name}`)).then(
+      res => {
+        const price = res.data.newslist[0];
+        if (price) {
+          let priceText =
+            `${name}油价：
+            零号柴油：${price.p0}
+            89号汽油：${price.p89}
+            92号汽油：${price.p92}
+            95号汽油：${price.p95}
+            98号汽油：${price.p98}
+            更新时间：${price.time}`
+          room.say(priceText, who);
+        }
+      }
+    ).catch(
+      err => {
+        room.say('可莉不知道哦', who);
+      }
+    )
+  }
 }
