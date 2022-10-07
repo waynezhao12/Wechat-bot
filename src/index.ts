@@ -25,6 +25,7 @@ import { WeatherService } from './weather-query/weather-query.js';
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
 import { AnimeLookupService } from './anime-lookup/anime-lookup.js';
 import { CalculatorService } from './calculator-service/calculator-service.js';
+import { getHoliday } from './holiday-service/holiday-service.js';
 
 const bot = WechatyBuilder.build({
   name: 'wechaty-puppet-wechat',
@@ -73,6 +74,7 @@ function onLogin(user: Contact) {
   dailyNewsPush(bot);
   timeTexts(bot);
   warningPush(bot);
+  getHoliday(bot);
 }
 
 function onLogout(user: Contact) {
