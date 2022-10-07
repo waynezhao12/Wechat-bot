@@ -10,6 +10,8 @@ export class WeatherService {
   private geoApi = 'https://geoapi.qweather.com/v2/city/lookup?';
   private airApi = 'https://devapi.qweather.com/v7/air/now?';
   private indicesApi = 'https://devapi.qweather.com/v7/indices/1d?';
+  private warningApi = 'https://devapi.qweather.com/v7/warning/now?';
+  private wearIndiceApi = 'https://devapi.qweather.com/v7/indices/1d?type=3';
 
   private geoInfo;
 
@@ -120,6 +122,95 @@ export class WeatherService {
     return weather;
   }
 
+  public async getWarning(cityName: string): Promise<any> {
+    let weatherInfo;
+
+    await this.getGeoID(cityName).then(
+      res => {
+        this.geoInfo = res;
+      }
+    ).catch(
+      err => {
+        throw new Error(err);
+      }
+    )
+    const warningCall = await this.getWarningRequest(this.geoInfo.id).then(
+      result => {
+        weatherInfo = result.data.warning;
+      }
+    ).catch(
+      error => {
+        throw new Error(error);
+      }
+    )
+
+    let fullName = this.geoInfo.name === this.geoInfo.adm2 ? this.geoInfo.adm1 + this.geoInfo.name : this.geoInfo.adm2 + this.geoInfo.name;
+    let weather: Array<string> = []
+    let warningId: Array<string> = [];
+    if (weatherInfo && weatherInfo.length > 0) {
+      weatherInfo.forEach(element => {
+        warningId.push(element.id)
+        weather.push(
+          `${fullName}天气灾害预警：
+          ${element.text}`);
+      });
+    }
+
+    if (weather.length === 0) {
+      return { warningIds: null, weatherText: '毫无波澜' };
+    } else {
+      return { warningIds: warningId, weatherText: weather };
+    }
+  }
+
+  public async getTodayWeather(cityName: string): Promise<any> {
+    let weatherInfo, indicesInfo;
+
+    await this.getGeoID(cityName).then(
+      res => {
+        this.geoInfo = res;
+      }
+    ).catch(
+      err => {
+        throw new Error(err);
+      }
+    )
+
+    const weatherCall = await this.getThreeDaysWeatherRequest(this.geoInfo.id).then(
+      result => {
+        weatherInfo = result.data.daily[0];
+      }
+    ).catch(
+      error => {
+        throw new Error(error);
+      }
+    )
+
+    const warningCall = await this.getWeartIndiceRequest(this.geoInfo.id).then(
+      result => {
+        indicesInfo = result.data.daily[0];
+      }
+    ).catch(
+      error => {
+        throw new Error(error);
+      }
+    )
+
+    let fullName = this.geoInfo.name === this.geoInfo.adm2 ? this.geoInfo.adm1 + this.geoInfo.name : this.geoInfo.adm2 + this.geoInfo.name;
+    let weather =
+      `${fullName}今日天气：
+      白天：${weatherInfo.textDay}
+      ${weatherInfo.windDirDay}${weatherInfo.windScaleDay}级
+      夜间：${weatherInfo.textDay}
+      ${weatherInfo.windDirNight}${weatherInfo.windScaleNight}级
+      温度：${weatherInfo.tempMin} - ${weatherInfo.tempMax}°C
+      湿度：${weatherInfo.humidity}°C
+      能见度${weatherInfo.vis}公里
+      紫外线指数${weatherInfo.uvIndex}级
+      ${indicesInfo.text}`;
+    return weather;
+  }
+
   private async getGeoID(cityName: string): Promise<string> {
     let geoId;
     await axios.get(encodeURI(`${this.geoApi}location=${cityName}&key=${this.key}`)).then(
@@ -148,6 +239,14 @@ export class WeatherService {
 
   private getThreeDaysWeatherRequest(geoID: string): Promise<any> {
     return axios.get(encodeURI(`${this.threeDaysWeatherApi}location=${geoID}&key=${this.key}`));
+  }
+
+  private getWarningRequest(geoID: string): Promise<any> {
+    return axios.get(encodeURI(`${this.warningApi}location=${geoID}&key=${this.key}`));
+  }
+
+  private getWeartIndiceRequest(geoID: string): Promise<any> {
+    return axios.get(encodeURI(`${this.wearIndiceApi}&location=${geoID}&key=${this.key}`));
   }
 }
 
