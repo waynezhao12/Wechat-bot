@@ -9,16 +9,16 @@ export async function weatherPush(bot: WechatyInterface) {
   schedule.scheduleJob('00 00 7 * * *', async () => {
     const roomList = await bot.Room.findAll();
     try {
-      await cityList.forEach(city => {
+      cityList.forEach(city => {
         const weatherService = new WeatherService();
         weatherService.getTodayWeather(city).then(
           res => {
             console.log(res);
 
-            roomList.forEach(async room => {
+            roomList.forEach(async (room) => {
               await sleep(1000);
               await room.say(res);
-            })
+            });
           }
         ).catch(
           err => {
@@ -28,7 +28,7 @@ export async function weatherPush(bot: WechatyInterface) {
             //   room.say(err + '')
             // })
           }
-        )
+        );
       });
     } catch (error) {
       console.log('Schedule runs failed\n', error)
@@ -97,7 +97,7 @@ export async function warningPush(bot: WechatyInterface) {
   setInterval(async () => {
     const roomList = await bot.Room.findAll();
     try {
-      await cityList.forEach(city => {
+      cityList.forEach(city => {
         const weatherService = new WeatherService();
         weatherService.getWarning(city).then(
           res => {
@@ -108,10 +108,10 @@ export async function warningPush(bot: WechatyInterface) {
               warningIds.forEach((id, index) => {
                 if (warningIdList.indexOf(id) === -1) {
                   warningIdList.push(id);
-                  roomList.forEach(async room => {
+                  roomList.forEach(async (room) => {
                     await sleep(1000);
                     await room.say(weatherText[index]);
-                  })
+                  });
                 }
               });
             }
@@ -120,7 +120,7 @@ export async function warningPush(bot: WechatyInterface) {
           err => {
             console.log(err);
           }
-        )
+        );
       });
     } catch (error) {
       console.log('Schedule runs failed\n', error)
