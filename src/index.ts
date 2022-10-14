@@ -26,6 +26,7 @@ import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
 import { AnimeLookupService } from './anime-lookup/anime-lookup.js';
 import { CalculatorService } from './calculator-service/calculator-service.js';
 import { getHoliday } from './holiday-service/holiday-service.js';
+import { AiPaintingService } from './ai-painting/ai-painting.js';
 
 const bot = WechatyBuilder.build({
   name: 'wechaty-puppet-wechat',
@@ -48,6 +49,7 @@ const weatherService = new WeatherService();
 const pixivService = new PixivLookupService();
 const animeService = new AnimeLookupService();
 const calculatorService = new CalculatorService();
+const aiPaintingService = new AiPaintingService();
 
 let lastPic: Message;
 let lastMsg: Message;
@@ -118,6 +120,10 @@ async function onMessage(msg: Message) {
 
   if (msg.text() === '很聪明') {
     await msg.say('确实');
+  }
+
+  if (msg.text().indexOf('/ai ') === 0) {
+    aiPaintingService.createPainting(msg);
   }
 
   if (msg.text().indexOf('今天天气') !== -1) {
