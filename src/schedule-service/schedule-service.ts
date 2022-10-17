@@ -13,8 +13,6 @@ export async function weatherPush(bot: WechatyInterface) {
         const weatherService = new WeatherService();
         weatherService.getTodayWeather(city).then(
           res => {
-            console.log(res);
-
             roomList.forEach(async (room) => {
               await sleep(1000);
               await room.say(res);
@@ -101,7 +99,7 @@ export async function warningPush(bot: WechatyInterface) {
         const weatherService = new WeatherService();
         weatherService.getWarning(city).then(
           res => {
-            console.log(res);
+            // console.log(res);
             let warningIds = res.warningIds;
             let weatherText = res.weatherText;
             if (warningIds && warningIds.length > 0) {
