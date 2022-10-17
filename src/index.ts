@@ -84,7 +84,7 @@ function onLogout(user: Contact) {
 }
 
 async function onMessage(msg: Message) {
-  log.info('Receive Message', [msg.text(), msg.type().toString()]);
+  // log.info('Receive Message', [msg.text(), msg.type().toString()]);
 
   if (!msg.self()) {
     checkRepeatMsg(msg);
@@ -191,7 +191,7 @@ async function onMessage(msg: Message) {
 function checkRepeatMsg(msg: Message) {
   if (lastMsg) {
     if (lastMsg.text() === msg.text()) {
-      console.log('same msg');
+      // console.log('same msg');
       sameMsgCount += 1;
       if (sameMsgCount === 2) {
         let room = msg.room();
