@@ -126,6 +126,22 @@ async function onMessage(msg: Message) {
     aiPaintingService.createPainting(msg);
   }
 
+  if (msg.text().indexOf('/news') === 0) {
+    try {
+      await axios.get('http://bjb.yunwj.top/php/tp/lj.php').then(
+        result => {
+          msg.say(FileBox.fromUrl(result.data.tp));
+        }
+      ).catch(
+        error => {
+          throw new Error("获取新闻失败");
+        }
+      )
+    } catch (error) {
+      console.log(error + '');
+    }
+  }
+
   if (msg.text().indexOf('今天天气') !== -1) {
     const cityIndex = msg.text().indexOf('今天天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
