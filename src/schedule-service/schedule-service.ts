@@ -9,9 +9,9 @@ export async function weatherPush(bot: WechatyInterface) {
   schedule.scheduleJob('00 00 7 * * *', async () => {
     const roomList = await bot.Room.findAll();
     try {
-      cityList.forEach(city => {
+      cityList.forEach(async city => {
         const weatherService = new WeatherService();
-        weatherService.getTodayWeather(city).then(
+        await weatherService.getTodayWeather(city).then(
           res => {
             roomList.forEach(async (room) => {
               await sleep(1000);

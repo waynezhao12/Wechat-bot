@@ -10,7 +10,7 @@ import { FileBox } from 'file-box';
 const api = 'http://bjb.yunwj.top/php/tp/lj.php';
 
 export async function dailyNewsPush(bot: WechatyInterface) {
-	schedule.scheduleJob('00 30 8 * * *', async () => {
+	schedule.scheduleJob('00 00 9 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
 			await axios.get(api).then(
