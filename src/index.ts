@@ -55,6 +55,8 @@ let lastPic: Message;
 let lastMsg: Message;
 let sameMsgCount: number = 0;
 
+let toRecalledMsg: Message;
+
 function onScan(qrcode: string, status: ScanStatus) {
   if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
     const qrcodeImageUrl = [
@@ -90,6 +92,16 @@ async function onMessage(msg: Message) {
     checkRepeatMsg(msg);
   }
 
+  if (msg.self()) {
+    toRecalledMsg = msg;
+  }
+
+  if (msg.type() === bot.Message.Type.Recalled) {
+    const recalledMessage = await msg.toRecalled();
+    await console.log(`Message: ${recalledMessage} has been recalled.`);
+    await msg.say(`"${recalledMessage?.text()}"成功撤回了`);
+  }
+
   if (msg.type() === bot.Message.Type.Image) {
     saveImage(msg);
   }
@@ -120,6 +132,17 @@ async function onMessage(msg: Message) {
 
   if (msg.text() === '很聪明') {
     await msg.say('确实');
+  }
+
+  if (msg.text().indexOf('/recall') === 0) {
+    if (toRecalledMsg) {
+      try {
+        await toRecalledMsg.recall();
+      } catch (error) {
+        console.log(error);
+        await msg.say('君子一言驷马难追');
+      }    
+    }
   }
 
   if (msg.text().indexOf('/ai ') === 0) {
