@@ -18,7 +18,7 @@ import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
 import { FileBox } from 'file-box';
 
-import { weatherPush, timeTexts, warningPush } from './schedule-service/schedule-service.js';
+import { weatherPush, timeTexts, warningPush, weatherPushFunc } from './schedule-service/schedule-service.js';
 import { dailyNewsPush } from './schedule-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
@@ -132,6 +132,12 @@ async function onMessage(msg: Message) {
 
   if (msg.text() === '很聪明') {
     await msg.say('确实');
+  }
+
+  if (msg.text() === '测试天气推送') {
+    if(msg.room()) {
+      weatherPushFunc([msg.room()]);
+    }
   }
 
   if (msg.text().indexOf('/recall') === 0) {

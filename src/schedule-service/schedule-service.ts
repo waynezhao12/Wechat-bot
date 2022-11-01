@@ -1,5 +1,6 @@
 import schedule from 'node-schedule';
-import { WechatyInterface } from 'wechaty/impls';
+import { Room } from 'wechaty';
+import { RoomInterface, WechatyInterface } from 'wechaty/impls';
 import { WeatherService } from '../weather-query/weather-query.js';
 
 let cityList = ['徐州', '北京'];
@@ -8,30 +9,35 @@ let warningIdList: Array<string> = [];
 export async function weatherPush(bot: WechatyInterface) {
   schedule.scheduleJob('00 00 7 * * *', async () => {
     const roomList = await bot.Room.findAll();
-    try {
-      cityList.forEach(async city => {
-        const weatherService = new WeatherService();
-        await weatherService.getTodayWeather(city).then(
-          res => {
-            roomList.forEach(async (room) => {
-              await sleep(1000);
-              await room.say(res);
-            });
-          }
-        ).catch(
-          err => {
-            console.log(err);
-
-            // roomList.forEach(room => {
-            //   room.say(err + '')
-            // })
-          }
-        );
-      });
-    } catch (error) {
-      console.log('Schedule runs failed\n', error)
-    }
+    weatherPushFunc(roomList, 3);
   })
+}
+
+export async function weatherPushFunc(roomList: any[], retries = 3) {
+  try {
+    console.log(retries);
+    cityList.forEach(async city => {
+      const weatherService = new WeatherService();
+      await weatherService.getTodayWeather(city).then(
+        res => {
+          roomList.forEach(async (room) => {
+            await sleep(1000);
+            await room.say(res);
+          });
+        }
+      ).catch(
+        err => {
+          console.log(err);
+          weatherPushFunc(roomList, retries - 1);
+          // roomList.forEach(room => {
+          //   room.say(err + '')
+          // })
+        }
+      );
+    });
+  } catch (error) {
+    console.log('Schedule runs failed\n', error)
+  }
 }
 
 export async function timeTexts(bot: WechatyInterface) {

@@ -21,6 +21,7 @@ export async function dailyNewsPush(bot: WechatyInterface) {
 				}
 			).catch(
 				error => {
+					console.log(error);
 					throw new Error("获取新闻失败");
 				}
 			)

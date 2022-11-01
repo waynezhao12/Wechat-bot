@@ -24,6 +24,7 @@ export class WeatherService {
       }
     ).catch(
       err => {
+        console.log(err);    
         throw new Error(err);
       }
     )
@@ -33,6 +34,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error); 
         throw new Error(error);
       }
     )
@@ -42,6 +44,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -51,6 +54,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -78,6 +82,7 @@ export class WeatherService {
       }
     ).catch(
       err => {
+        console.log(err);
         throw new Error(err);
       }
     )
@@ -87,6 +92,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -131,6 +137,7 @@ export class WeatherService {
       }
     ).catch(
       err => {
+        console.log(err);
         throw new Error(err);
       }
     )
@@ -140,6 +147,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -172,6 +180,7 @@ export class WeatherService {
       }
     ).catch(
       err => {
+        console.log(err);
         throw new Error(err);
       }
     )
@@ -182,6 +191,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -192,6 +202,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -219,6 +230,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
+        console.log(error);
         throw new Error("获取地理信息失败");
       }
     )
