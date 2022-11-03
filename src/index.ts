@@ -136,7 +136,7 @@ async function onMessage(msg: Message) {
 
   if (msg.text() === '测试天气推送') {
     if(msg.room()) {
-      weatherPushFunc([msg.room()]);
+      weatherPushFunc('徐州', [msg.room()]);
     }
   }
 
@@ -174,7 +174,7 @@ async function onMessage(msg: Message) {
   if (msg.text().indexOf('今天天气') !== -1) {
     const cityIndex = msg.text().indexOf('今天天气');
     if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '今天').then(
+      await weatherService.getTodayWeather(msg.text().slice(0, cityIndex)).then(
         res => {
           msg.say(res);
         }

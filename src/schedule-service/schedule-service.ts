@@ -9,32 +9,35 @@ let warningIdList: Array<string> = [];
 export async function weatherPush(bot: WechatyInterface) {
   schedule.scheduleJob('00 00 7 * * *', async () => {
     const roomList = await bot.Room.findAll();
-    weatherPushFunc(roomList, 3);
+    cityList.forEach(async city => {
+      weatherPushFunc(city, roomList, 3);
+    });
   })
 }
 
-export async function weatherPushFunc(roomList: any[], retries = 3) {
+export async function weatherPushFunc(city, roomList: any[], retries = 3) {
   try {
     console.log(retries);
-    cityList.forEach(async city => {
-      const weatherService = new WeatherService();
-      await weatherService.getTodayWeather(city).then(
-        res => {
-          roomList.forEach(async (room) => {
-            await sleep(1000);
-            await room.say(res);
-          });
+    const weatherService = new WeatherService();
+    await weatherService.getTodayWeather(city).then(
+      res => {
+        roomList.forEach(async (room) => {
+          await sleep(1000);
+          await room.say(res);
+        });
+      }
+    ).catch(
+      err => {
+        console.log(err);
+        if (retries > 0) {
+          weatherPushFunc(city, roomList, retries - 1);
+        } else {
+          roomList.forEach(room => {
+            room.say(err + '')
+          })
         }
-      ).catch(
-        err => {
-          console.log(err);
-          weatherPushFunc(roomList, retries - 1);
-          // roomList.forEach(room => {
-          //   room.say(err + '')
-          // })
-        }
-      );
-    });
+      }
+    );
   } catch (error) {
     console.log('Schedule runs failed\n', error)
   }

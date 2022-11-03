@@ -24,7 +24,7 @@ export class WeatherService {
       }
     ).catch(
       err => {
-        console.log(err);    
+        console.log(err);
         throw new Error(err);
       }
     )
@@ -34,7 +34,7 @@ export class WeatherService {
       }
     ).catch(
       error => {
-        console.log(error); 
+        console.log(error);
         throw new Error(error);
       }
     )
@@ -173,53 +173,58 @@ export class WeatherService {
 
   public async getTodayWeather(cityName: string): Promise<any> {
     let weatherInfo, indicesInfo;
+    try {
+      await this.getGeoID(cityName).then(
+        res => {
+          this.geoInfo = res;
+        }
+      ).catch(
+        err => {
+          console.log(err);
+          throw new Error(err);
+        }
+      )
 
-    await this.getGeoID(cityName).then(
-      res => {
-        this.geoInfo = res;
-      }
-    ).catch(
-      err => {
-        console.log(err);
-        throw new Error(err);
-      }
-    )
+      const weatherCall = await this.getThreeDaysWeatherRequest(this.geoInfo.id).then(
+        result => {
+          weatherInfo = result.data.daily[0];
+        }
+      ).catch(
+        error => {
+          console.log(error);
+          throw new Error(error);
+        }
+      )
 
-    const weatherCall = await this.getThreeDaysWeatherRequest(this.geoInfo.id).then(
-      result => {
-        weatherInfo = result.data.daily[0];
-      }
-    ).catch(
-      error => {
-        console.log(error);
-        throw new Error(error);
-      }
-    )
+      const warningCall = await this.getWeartIndiceRequest(this.geoInfo.id).then(
+        result => {
+          indicesInfo = result.data.daily[0];
+        }
+      ).catch(
+        error => {
+          console.log(error);
+          throw new Error(error);
+        }
+      )
 
-    const warningCall = await this.getWeartIndiceRequest(this.geoInfo.id).then(
-      result => {
-        indicesInfo = result.data.daily[0];
-      }
-    ).catch(
-      error => {
-        console.log(error);
-        throw new Error(error);
-      }
-    )
-
-    let fullName = this.geoInfo.name === this.geoInfo.adm2 ? this.geoInfo.adm1 + this.geoInfo.name : this.geoInfo.adm2 + this.geoInfo.name;
-    let weather =
-      `${fullName}今日天气：
-      白天：${weatherInfo.textDay}
-      ${weatherInfo.windDirDay}${weatherInfo.windScaleDay}级
-      夜间：${weatherInfo.textDay}
-      ${weatherInfo.windDirNight}${weatherInfo.windScaleNight}级
-      温度：${weatherInfo.tempMin} - ${weatherInfo.tempMax}°C
-      湿度：${weatherInfo.humidity}°C
-      能见度${weatherInfo.vis}公里
-      紫外线指数${weatherInfo.uvIndex}级
-      ${indicesInfo.text}`;
-    return weather;
+      let fullName = this.geoInfo.name === this.geoInfo.adm2 ? this.geoInfo.adm1 + this.geoInfo.name : this.geoInfo.adm2 + this.geoInfo.name;
+      let weather =
+        `${fullName}今日天气：
+        白天：${weatherInfo.textDay}
+        ${weatherInfo.windDirDay}${weatherInfo.windScaleDay}级
+        夜间：${weatherInfo.textDay}
+        ${weatherInfo.windDirNight}${weatherInfo.windScaleNight}级
+        温度：${weatherInfo.tempMin} - ${weatherInfo.tempMax}°C
+        湿度：${weatherInfo.humidity}°C
+        能见度${weatherInfo.vis}公里
+        紫外线指数${weatherInfo.uvIndex}级
+        ${indicesInfo.text}`;
+      // return weather;
+      return Promise.resolve(weather);
+    } catch (error) {
+      // throw new Error('' + error);
+      return Promise.reject(new Error('' + error));
+    }
   }
 
   private async getGeoID(cityName: string): Promise<string> {
