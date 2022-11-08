@@ -10,7 +10,7 @@ import { FileBox } from 'file-box';
 const api = 'https://api.03c3.cn/zb/';
 
 export async function dailyNewsPush(bot: WechatyInterface) {
-	schedule.scheduleJob('00 00 9 * * *', async () => {
+	schedule.scheduleJob('00 30 8 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
 			let filebox = FileBox.fromUrl('https://api.03c3.cn/zb/');
