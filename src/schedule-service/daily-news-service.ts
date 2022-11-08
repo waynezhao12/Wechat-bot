@@ -7,21 +7,21 @@ import { WechatyInterface } from 'wechaty/impls';
 import axios from 'axios';
 import { FileBox } from 'file-box';
 
-const api = 'http://bjb.yunwj.top/php/tp/lj.php';
+const api = 'https://api.03c3.cn/zb/';
 
 export async function dailyNewsPush(bot: WechatyInterface) {
 	schedule.scheduleJob('00 00 9 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
-			await axios.get(api).then(
+			let filebox = FileBox.fromUrl('https://api.03c3.cn/zb/');
+			filebox.toFile('news.png', true).then(
 				result => {
 					roomList.forEach(room => {
-						room.say(FileBox.fromUrl(result.data.tp))
+						room.say(FileBox.fromFile('news.png'));
 					})
 				}
 			).catch(
 				error => {
-					console.log(error);
 					throw new Error("获取新闻失败");
 				}
 			)

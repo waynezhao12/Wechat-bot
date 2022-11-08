@@ -17,6 +17,7 @@ import {
 import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
 import { FileBox } from 'file-box';
+import fs from 'fs';
 
 import { weatherPush, timeTexts, warningPush, weatherPushFunc } from './schedule-service/schedule-service.js';
 import { dailyNewsPush } from './schedule-service/daily-news-service.js';
@@ -135,7 +136,7 @@ async function onMessage(msg: Message) {
   }
 
   if (msg.text() === '测试天气推送') {
-    if(msg.room()) {
+    if (msg.room()) {
       weatherPushFunc('徐州', [msg.room()]);
     }
   }
@@ -147,7 +148,7 @@ async function onMessage(msg: Message) {
       } catch (error) {
         console.log(error);
         await msg.say('君子一言驷马难追');
-      }    
+      }
     }
   }
 
@@ -157,9 +158,10 @@ async function onMessage(msg: Message) {
 
   if (msg.text().indexOf('/news') === 0) {
     try {
-      await axios.get('http://bjb.yunwj.top/php/tp/lj.php').then(
+      let filebox = FileBox.fromUrl('https://api.03c3.cn/zb/');
+      filebox.toFile('news.png', true).then(
         result => {
-          msg.say(FileBox.fromUrl(result.data.tp));
+          msg.say(FileBox.fromFile('news.png'));
         }
       ).catch(
         error => {
