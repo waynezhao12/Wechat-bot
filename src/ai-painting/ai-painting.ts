@@ -4,7 +4,7 @@ import fs from "fs";
 import { FileBox } from 'file-box';
 
 export class AiPaintingService {
-  private apiUrl = 'http://cn-hk-nf-1.natfrp.cloud:27611/generate-stream';
+  private apiUrl = 'https://desert-served-carrying-advanced.trycloudflare.com/generate-stream';
 
   public async createPainting(msg: Message) {
     let prompt = msg.text().slice(msg.text().indexOf('/ai ') + 4);
