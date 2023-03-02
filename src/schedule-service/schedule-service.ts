@@ -143,7 +143,7 @@ export async function earthquakePush(bot: WechatyInterface) {
     try {
       await axios.get('https://data.weather.gov.hk/weatherAPI/opendata/earthquake.php?dataType=qem&lang=sc').then(
         res => {
-          if (JSON.stringify(res.data) !== lastEarthquakeList) {
+          if (res.data && JSON.stringify(res.data) !== lastEarthquakeList) {
             try {
               let eqObj = res.data;
               if (eqObj && eqObj.lat && eqObj.lon && eqObj.mag && eqObj.region && eqObj.ptime) {
@@ -169,7 +169,7 @@ export async function earthquakePush(bot: WechatyInterface) {
     } catch (error) {
       console.log('Schedule runs failed\n', error)
     }
-  }, 1000 * 60 * 10);
+  }, 1000 * 60 * 20);
 }
 
 function sleep(ms) {
