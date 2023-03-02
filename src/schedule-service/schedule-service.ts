@@ -1,10 +1,12 @@
 import schedule from 'node-schedule';
+import axios from 'axios';
 import { Room } from 'wechaty';
 import { RoomInterface, WechatyInterface } from 'wechaty/impls';
 import { WeatherService } from '../weather-query/weather-query.js';
 
 let cityList = ['徐州', '北京'];
 let warningIdList: Array<string> = [];
+let lastEarthquakeList = '';
 
 export async function weatherPush(bot: WechatyInterface) {
   schedule.scheduleJob('00 00 7 * * *', async () => {
@@ -133,6 +135,41 @@ export async function warningPush(bot: WechatyInterface) {
       console.log('Schedule runs failed\n', error)
     }
   }, 1000 * 60 * 30);
+}
+
+export async function earthquakePush(bot: WechatyInterface) {
+  setInterval(async () => {
+    const roomList = await bot.Room.findAll();
+    try {
+      await axios.get('https://data.weather.gov.hk/weatherAPI/opendata/earthquake.php?dataType=qem&lang=sc').then(
+        res => {
+          if (JSON.stringify(res.data) !== lastEarthquakeList) {
+            try {
+              let eqObj = res.data;
+              if (eqObj && eqObj.lat && eqObj.lon && eqObj.mag && eqObj.region && eqObj.ptime) {
+                let date = new Date(eqObj.ptime);
+                let script =
+                  `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.lat}, ${eqObj.lon}) 的${eqObj.region}发生${eqObj.mag}级地震`;
+                roomList.forEach(async (room) => {
+                  await sleep(1000);
+                  await room.say(script);
+                });
+                lastEarthquakeList = JSON.stringify(res.data);
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          }
+        }
+      ).catch(
+        err => {
+          console.log(err);
+        }
+      )
+    } catch (error) {
+      console.log('Schedule runs failed\n', error)
+    }
+  }, 1000 * 60 * 10);
 }
 
 function sleep(ms) {

@@ -21,7 +21,7 @@ import fs from 'fs';
 
 import { ChatGPTAPI } from 'chatgpt';
 
-import { weatherPush, timeTexts, warningPush, weatherPushFunc } from './schedule-service/schedule-service.js';
+import { weatherPush, timeTexts, warningPush, weatherPushFunc, earthquakePush } from './schedule-service/schedule-service.js';
 import { dailyNewsPush } from './schedule-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
@@ -88,6 +88,7 @@ async function onLogin(user: Contact) {
   dailyNewsPush(bot);
   timeTexts(bot);
   warningPush(bot);
+  earthquakePush(bot);
   getHoliday(bot);
 }
 
@@ -128,7 +129,9 @@ async function onMessage(msg: Message) {
     } else if (msg.text().includes('油价')) {
       queryFurlPrice(msg, room);
     } else {
-      rainbowFart(msg, room);
+      if (!msg.self()) {
+        rainbowFart(msg, room);
+      }
     }
   }
 
@@ -179,6 +182,33 @@ async function onMessage(msg: Message) {
           }
         )
       }
+    } catch (error) {
+      console.log(error + '');
+    }
+  }
+
+  if (msg.text().indexOf('/地震') === 0) {
+    try {
+      await axios.get('https://data.weather.gov.hk/weatherAPI/opendata/earthquake.php?dataType=qem&lang=sc').then(
+        res => {
+          try {
+            console.log(res);
+            let eqObj = res.data;
+            if (eqObj && eqObj.lat && eqObj.lon && eqObj.mag && eqObj.region && eqObj.ptime) {
+              let date = new Date(eqObj.ptime);
+              let script =
+                `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.lat}, ${eqObj.lon}) 的${eqObj.region}发生${eqObj.mag}级地震`;
+              msg.say(script);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      ).catch(
+        err => {
+          console.log(err);
+        }
+      )
     } catch (error) {
       console.log(error + '');
     }
