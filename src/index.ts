@@ -130,7 +130,7 @@ async function onMessage(msg: Message) {
       searchAnime(lastPic);
     } else if (msg.text().includes('油价')) {
       queryFurlPrice(msg, room);
-    } else if (msg.text() == '' || msg.text() == ' ') {
+    } else if (msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == '' || msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == ' ') {
       rainbowFart(msg, room);
     } else {
       if (!msg.self()) {
