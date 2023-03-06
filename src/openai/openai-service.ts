@@ -29,12 +29,15 @@ export class OpenAIService {
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) }]
     }
-    // axios.create({httpsAgent}).post('https://api.openai.com/v1/chat/completions', requestBody, config).then(
-    axios.post('https://api.openai.com/v1/chat/completions', requestBody, config).then(
+    axios.create({ httpsAgent }).post('https://api.openai.com/v1/chat/completions', requestBody, config).then(
+      // axios.post('https://api.openai.com/v1/chat/completions', requestBody, config).then(
       res => {
         try {
-          console.log(res);
-          // msg.say(res.data.choices[0].message);
+          if (res.data) {
+            // console.log(res.data);
+            console.log(res.data.choices[0]);
+            msg.say((res.data.choices[0].message.content + '').replaceAll('\n\n', ''));
+          }
         } catch (error) {
           console.log(error);
         }
