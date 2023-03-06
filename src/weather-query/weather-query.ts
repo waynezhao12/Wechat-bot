@@ -3,8 +3,8 @@ import { log, Message } from 'wechaty';
 import axios from 'axios';
 
 export class WeatherService {
-  private publicID = 'HE2209302107111773';
-  private key = '6892d0322db34c6e858e87ba1497077c';
+  private publicID = process.env.QWEATHER_PUBLIC_ID;
+  private key = process.env.QWEATHER_API_KEY;
   private weatherApi = 'https://devapi.qweather.com/v7/weather/now?';
   private threeDaysWeatherApi = 'https://devapi.qweather.com/v7/weather/3d?';
   private geoApi = 'https://geoapi.qweather.com/v2/city/lookup?';

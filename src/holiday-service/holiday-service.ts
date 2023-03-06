@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 const holidayApi = 'http://api.tianapi.com/jiejiari/index?';
-const apiKey = 'e877d0c19d79029e15dbcf4f5dea0738';
+const apiKey = process.env.TIANAPI_API_KEY;
 
 interface Holiday {
 	name: string;
