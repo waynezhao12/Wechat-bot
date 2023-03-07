@@ -17,12 +17,16 @@ export async function dailyNewsPush(bot: WechatyInterface) {
 			filebox.toFile('news.png', true).then(
 				result => {
 					roomList.forEach(room => {
-						room.say(FileBox.fromFile('news.png'));
+						try {
+							room.say(FileBox.fromFile('news.png'));
+						} catch (error) {
+							console.log(error);
+						}
 					})
 				}
 			).catch(
 				error => {
-					throw new Error("获取新闻失败");
+					console.log(error);
 				}
 			)
 		} catch (error) {
