@@ -10,7 +10,7 @@ export class EdgeGptService {
       messages: [{ role: "user", content: msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) }]
     }
     axios.post('http://10.0.10.6:55059/api/edgegpt/chat', requestBody).then(
-      res => {
+      async res => {
         console.log(res);
         try {
           if (res.data) {
@@ -18,6 +18,7 @@ export class EdgeGptService {
             msg.say(reply);
             if (res.data.sourceAttributions) {
               if (res.data.sourceAttributions.length > 0) {
+                await sleep(1000);
                 let attrmsg = `引用文献：\n`;
                 res.data.sourceAttributions.forEach((attr, index) => {
                   attrmsg += `\n[${index + 1}]：${attr['providerDisplayName'] || '未知'}：${attr['seeMoreUrl']}`
