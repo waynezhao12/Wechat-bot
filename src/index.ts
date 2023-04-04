@@ -137,11 +137,12 @@ async function onMessage(msg: Message) {
       rainbowFart(msg, room);
     } else {
       if (!msg.self()) {
-        if (msg.text().includes('必应@问问神奇的可莉吧')) {
-          edgegptService.getResponse(msg);
-        } else {
-          openaiService.getResponse(msg);
-        }
+        // if (msg.text().includes('必应@问问神奇的可莉吧')) {
+        //   edgegptService.getResponse(msg);
+        // } else {
+        //   openaiService.getResponse(msg);
+        // }
+        edgegptService.getResponse(msg);
       }
     }
   }
@@ -176,7 +177,7 @@ async function onMessage(msg: Message) {
   }
 
   if (msg.text().indexOf('/ai ') === 0) {
-    aiPaintingService.createPainting(msg);
+    edgegptService.getPainting(msg);
   }
 
   if (msg.text().indexOf('/news') === 0) {
