@@ -141,20 +141,20 @@ export async function earthquakePush(bot: WechatyInterface) {
   setInterval(async () => {
     const roomList = await bot.Room.findAll();
     try {
-      await axios.get('https://data.weather.gov.hk/weatherAPI/opendata/earthquake.php?dataType=qem&lang=sc').then(
+      await axios.get('https://api.wolfx.jp/cenc_eqlist.json').then(
         res => {
-          if (res.data && JSON.stringify(res.data) !== lastEarthquakeList) {
+          if (res.data && res.data['No1'] && JSON.stringify(res.data['No1']) !== lastEarthquakeList) {
             try {
-              let eqObj = res.data;
-              if (eqObj && eqObj.lat && eqObj.lon && eqObj.mag && eqObj.region && eqObj.ptime) {
-                let date = new Date(eqObj.ptime);
+              let eqObj = res.data['No1'];
+              if (eqObj && eqObj.latitude && eqObj.longitude && eqObj.magnitude && eqObj.location && eqObj.time && eqObj.depth) {
+                let date = new Date(eqObj.time);
                 let script =
-                  `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.lat}, ${eqObj.lon}) 的${eqObj.region}发生${eqObj.mag}级地震`;
+                  `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.latitude}, ${eqObj.longitude}) 的${eqObj.location}发生${eqObj.magnitude}级地震，震源深度${eqObj.depth}千米`;
                 roomList.forEach(async (room) => {
                   await sleep(1000);
                   await room.say(script);
                 });
-                lastEarthquakeList = JSON.stringify(res.data);
+                lastEarthquakeList = JSON.stringify(res.data['No1']);
               }
             } catch (error) {
               console.log(error);
@@ -169,7 +169,7 @@ export async function earthquakePush(bot: WechatyInterface) {
     } catch (error) {
       console.log('Schedule runs failed\n', error)
     }
-  }, 1000 * 60 * 20);
+  }, 1000 * 60 * 10);
 }
 
 function sleep(ms) {

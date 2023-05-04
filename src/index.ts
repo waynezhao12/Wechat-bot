@@ -103,200 +103,203 @@ function onLogout(user: Contact) {
 
 async function onMessage(msg: Message) {
   log.info('Receive Message', [msg.text(), msg.type().toString()]);
-
-  if (!msg.self()) {
-    checkRepeatMsg(msg);
-  }
-
-  if (msg.self()) {
-    toRecalledMsg = msg;
-  }
-
-  // if (msg.type() === bot.Message.Type.Recalled) {
-  //   const recalledMessage = await msg.toRecalled();
-  //   await console.log(`Message: ${recalledMessage} has been recalled.`);
-  //   await msg.say(`"${recalledMessage?.text()}"成功撤回了`);
-  // }
-
-  if (msg.type() === bot.Message.Type.Image) {
-    saveImage(msg);
-  }
-
-  if (await msg.mentionSelf()) {
-    const room = msg.room();
-    if (!room) {
-      throw new Error('Should never reach here: a mention message must in a room');
+  if (msg.age() <= 60) {
+    if (!msg.self()) {
+      checkRepeatMsg(msg);
     }
-    if (msg.text().includes('搜图')) {
-      searchPixiv(lastPic);
-    } else if (msg.text().includes('查番剧')) {
-      searchAnime(lastPic);
-    } else if (msg.text().includes('油价')) {
-      queryFurlPrice(msg, room);
-    } else if (msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == '' || msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == ' ') {
-      rainbowFart(msg, room);
-    } else {
-      if (!msg.self()) {
-        // if (msg.text().includes('必应@问问神奇的可莉吧')) {
-        //   edgegptService.getResponse(msg);
-        // } else {
-        //   openaiService.getResponse(msg);
-        // }
-        edgegptService.getResponse(msg);
+
+    if (msg.self()) {
+      toRecalledMsg = msg;
+    }
+
+    // if (msg.type() === bot.Message.Type.Recalled) {
+    //   const recalledMessage = await msg.toRecalled();
+    //   await console.log(`Message: ${recalledMessage} has been recalled.`);
+    //   await msg.say(`"${recalledMessage?.text()}"成功撤回了`);
+    // }
+
+    if (msg.type() === bot.Message.Type.Image) {
+      saveImage(msg);
+    }
+
+    if (await msg.mentionSelf()) {
+      const room = msg.room();
+      if (!room) {
+        throw new Error('Should never reach here: a mention message must in a room');
+      }
+      if (msg.text().includes('搜图')) {
+        searchPixiv(lastPic);
+      } else if (msg.text().includes('查番剧')) {
+        searchAnime(lastPic);
+      } else if (msg.text().includes('油价')) {
+        queryFurlPrice(msg, room);
+      } else if (msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == '' || msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == ' ') {
+        rainbowFart(msg, room);
+      } else {
+        if (!msg.self()) {
+          // if (msg.text().includes('必应@问问神奇的可莉吧')) {
+          //   edgegptService.getResponse(msg);
+          // } else {
+          //   openaiService.getResponse(msg);
+          // }
+          edgegptService.getResponse(msg);
+          // openaiService.getResponse(msg);
+        }
       }
     }
-  }
 
-  if (msg.text() === 'ding') {
-    await msg.say('dong');
-  }
-
-  if (msg.text() === '太笨了') {
-    await msg.say('你才笨');
-  }
-
-  if (msg.text() === '很聪明') {
-    await msg.say('确实');
-  }
-
-  if (msg.text() === '测试天气推送') {
-    if (msg.room()) {
-      weatherPushFunc('徐州', [msg.room()]);
+    if (msg.text() === 'ding') {
+      await msg.say('dong');
     }
-  }
 
-  if (msg.text().indexOf('/recall') === 0) {
-    if (toRecalledMsg) {
+    if (msg.text() === '太笨了') {
+      await msg.say('你才笨');
+    }
+
+    if (msg.text() === '很聪明') {
+      await msg.say('确实');
+    }
+
+    if (msg.text() === '测试天气推送') {
+      if (msg.room()) {
+        weatherPushFunc('徐州', [msg.room()]);
+      }
+    }
+
+    if (msg.text().indexOf('/recall') === 0) {
+      if (toRecalledMsg) {
+        try {
+          await toRecalledMsg.recall();
+        } catch (error) {
+          console.log(error);
+          await msg.say('君子一言驷马难追');
+        }
+      }
+    }
+
+    if (msg.text().indexOf('/ai ') === 0) {
+      edgegptService.getPainting(msg);
+    }
+
+    if (msg.text().indexOf('/news') === 0) {
       try {
-        await toRecalledMsg.recall();
+        let filebox = await FileBox.fromUrl('https://api.03c3.cn/zb/');
+        if (filebox) {
+          await filebox.toFile('news.png', true).then(
+            result => {
+              msg.say(FileBox.fromFile('news.png'));
+            }
+          ).catch(
+            error => {
+              throw new Error("获取新闻失败");
+            }
+          )
+        }
       } catch (error) {
-        console.log(error);
-        await msg.say('君子一言驷马难追');
+        console.log(error + '');
       }
     }
-  }
 
-  if (msg.text().indexOf('/ai ') === 0) {
-    edgegptService.getPainting(msg);
-  }
-
-  if (msg.text().indexOf('/news') === 0) {
-    try {
-      let filebox = await FileBox.fromUrl('https://api.03c3.cn/zb/');
-      if (filebox) {
-        await filebox.toFile('news.png', true).then(
-          result => {
-            msg.say(FileBox.fromFile('news.png'));
+    if (msg.text().indexOf('/地震') === 0) {
+      try {
+        await axios.get('https://api.wolfx.jp/cenc_eqlist.json').then(
+          res => {
+            if (res.data && res.data['No1']) {
+              try {
+                let eqObj = res.data['No1'];
+                if (eqObj && eqObj.latitude && eqObj.longitude && eqObj.magnitude && eqObj.location && eqObj.time && eqObj.depth) {
+                  let date = new Date(eqObj.time);
+                  let script =
+                    `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.latitude}, ${eqObj.longitude}) 的${eqObj.location}发生${eqObj.magnitude}级地震，震源深度${eqObj.depth}千米`;
+                  msg.say(script);
+                }
+              } catch (error) {
+                console.log(error);
+              }
+            }
           }
         ).catch(
-          error => {
-            throw new Error("获取新闻失败");
+          err => {
+            console.log(err);
+          }
+        )
+      } catch (error) {
+        console.log(error + '');
+      }
+    }
+
+    if (msg.text().indexOf('/hi ') === 0) {
+      try {
+        const room = msg.room();
+        if (room) {
+          const contact = msg.talker();
+          let content = msg.text();
+          const request = content.replace('/hi ', '');
+          // await chatgptReply(room, contact, request);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (msg.text().indexOf('今天天气') !== -1) {
+      const cityIndex = msg.text().indexOf('今天天气');
+      if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
+        await weatherService.getTodayWeather(msg.text().slice(0, cityIndex)).then(
+          res => {
+            msg.say(res);
+          }
+        ).catch(
+          err => {
+            msg.say(err + '');
           }
         )
       }
-    } catch (error) {
-      console.log(error + '');
-    }
-  }
-
-  if (msg.text().indexOf('/地震') === 0) {
-    try {
-      await axios.get('https://data.weather.gov.hk/weatherAPI/opendata/earthquake.php?dataType=qem&lang=sc').then(
-        res => {
-          try {
-            console.log(res);
-            let eqObj = res.data;
-            if (eqObj && eqObj.lat && eqObj.lon && eqObj.mag && eqObj.region && eqObj.ptime) {
-              let date = new Date(eqObj.ptime);
-              let script =
-                `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.lat}, ${eqObj.lon}) 的${eqObj.region}发生${eqObj.mag}级地震`;
-              msg.say(script);
-            }
-          } catch (error) {
-            console.log(error);
+    } else if (msg.text().indexOf('明天天气') !== -1) {
+      const cityIndex = msg.text().indexOf('明天天气');
+      if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
+        await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '明天').then(
+          res => {
+            msg.say(res);
           }
-        }
-      ).catch(
-        err => {
-          console.log(err);
-        }
-      )
-    } catch (error) {
-      console.log(error + '');
-    }
-  }
-
-  if (msg.text().indexOf('/hi ') === 0) {
-    try {
-      const room = msg.room();
-      if (room) {
-        const contact = msg.talker();
-        let content = msg.text();
-        const request = content.replace('/hi ', '');
-        // await chatgptReply(room, contact, request);
+        ).catch(
+          err => {
+            msg.say(err + '');
+          }
+        )
       }
-    } catch (e) {
-      console.error(e);
+    } else if (msg.text().indexOf('后天天气') !== -1) {
+      const cityIndex = msg.text().indexOf('后天天气');
+      if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
+        await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '后天').then(
+          res => {
+            msg.say(res);
+          }
+        ).catch(
+          err => {
+            msg.say(err + '');
+          }
+        )
+      }
+    } else if (msg.text().indexOf('天气') !== -1) {
+      const cityIndex = msg.text().indexOf('天气');
+      if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
+        await weatherService.getWeather(msg.text().slice(0, cityIndex)).then(
+          res => {
+            msg.say(res);
+          }
+        ).catch(
+          err => {
+            msg.say(err + '');
+          }
+        )
+      }
     }
-  }
 
-  if (msg.text().indexOf('今天天气') !== -1) {
-    const cityIndex = msg.text().indexOf('今天天气');
-    if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getTodayWeather(msg.text().slice(0, cityIndex)).then(
-        res => {
-          msg.say(res);
-        }
-      ).catch(
-        err => {
-          msg.say(err + '');
-        }
-      )
+    const calculateIndex = msg.text().indexOf('计算');
+    if (calculateIndex !== -1 && calculateIndex === 0) {
+      calculatorService.calculator(msg);
     }
-  } else if (msg.text().indexOf('明天天气') !== -1) {
-    const cityIndex = msg.text().indexOf('明天天气');
-    if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '明天').then(
-        res => {
-          msg.say(res);
-        }
-      ).catch(
-        err => {
-          msg.say(err + '');
-        }
-      )
-    }
-  } else if (msg.text().indexOf('后天天气') !== -1) {
-    const cityIndex = msg.text().indexOf('后天天气');
-    if (cityIndex !== -1 && cityIndex === msg.text().length - 4) {
-      await weatherService.getThreeDaysWeather(msg.text().slice(0, cityIndex), '后天').then(
-        res => {
-          msg.say(res);
-        }
-      ).catch(
-        err => {
-          msg.say(err + '');
-        }
-      )
-    }
-  } else if (msg.text().indexOf('天气') !== -1) {
-    const cityIndex = msg.text().indexOf('天气');
-    if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
-      await weatherService.getWeather(msg.text().slice(0, cityIndex)).then(
-        res => {
-          msg.say(res);
-        }
-      ).catch(
-        err => {
-          msg.say(err + '');
-        }
-      )
-    }
-  }
-
-  const calculateIndex = msg.text().indexOf('计算');
-  if (calculateIndex !== -1 && calculateIndex === 0) {
-    calculatorService.calculator(msg);
   }
 }
 
