@@ -6,7 +6,7 @@ import Catbox from 'catbox.moe';
 export class PixivLookupService {
 
   private catboxHash = process.env.CATBOX_HASH_KEY;
-  private apiKey = process.env.CATBOX_API_KEY;
+  private apiKey = process.env.SAUCENAO_API_KEY;
 
   public async getImg(msg: Message): Promise<any> {
     let queryResult, baseImg, formatResult, catboxUrl;
