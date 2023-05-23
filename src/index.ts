@@ -183,7 +183,7 @@ async function onMessage(msg: Message) {
 
     if (msg.text().indexOf('/news') === 0) {
       try {
-        let filebox = await FileBox.fromUrl('https://api.03c3.cn/zb/');
+        let filebox = await FileBox.fromUrl('https://api.vvhan.com/api/60s');
         if (filebox) {
           await filebox.toFile('news.png', true).then(
             result => {
