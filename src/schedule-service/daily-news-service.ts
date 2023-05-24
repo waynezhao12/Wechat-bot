@@ -1,4 +1,6 @@
 import schedule from 'node-schedule';
+import fs from 'fs';
+
 import {
 	log,
 	Room,
@@ -7,31 +9,42 @@ import { WechatyInterface } from 'wechaty/impls';
 import axios from 'axios';
 import { FileBox } from 'file-box';
 
-// const api = 'https://api.03c3.cn/zb/';
-const api = 'https://api.vvhan.com/api/60s';
+const api = 'https://api.03c3.cn/zb/';
+const api2 = 'https://api.vvhan.com/api/60s';
 
 export async function dailyNewsPush(bot: WechatyInterface) {
 	schedule.scheduleJob('00 30 8 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
-			let filebox = FileBox.fromUrl(api);
-			filebox.toFile('news.png', true).then(
-				result => {
-					roomList.forEach(room => {
-						try {
-							room.say(FileBox.fromFile('news.png'));
-						} catch (error) {
-							console.log(error);
-						}
-					})
-				}
-			).catch(
-				error => {
+			let news = await downloadImage(api, 'news.png');
+			await roomList.forEach(room => {
+				try {
+					let img = FileBox.fromFile('news.png');
+					if (img) {
+						room.say(img);
+					}
+				} catch (error) {
 					console.log(error);
 				}
-			)
+			})
+
 		} catch (error) {
 			console.log('Schedule runs failed\n', error)
 		}
 	})
+}
+
+export async function downloadImage(url, image_path) {
+	axios({
+		url,
+		responseType: 'stream',
+	}).then(
+		response =>
+			new Promise((resolve, reject) => {
+				response.data
+					.pipe(fs.createWriteStream(image_path))
+					.on('finish', () => resolve(image_path))
+					.on('error', e => reject(e));
+			}),
+	)
 }

@@ -20,9 +20,10 @@ import { FileBox } from 'file-box';
 import fs from 'fs';
 
 import { ChatGPTAPI } from 'chatgpt';
+import { pngValidator } from 'png-validator';
 
 import { weatherPush, timeTexts, warningPush, weatherPushFunc, earthquakePush } from './schedule-service/schedule-service.js';
-import { dailyNewsPush } from './schedule-service/daily-news-service.js';
+import { dailyNewsPush, downloadImage } from './schedule-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
@@ -64,7 +65,7 @@ const animeService = new AnimeLookupService();
 const calculatorService = new CalculatorService();
 const aiPaintingService = new AiPaintingService();
 const openaiService = new OpenAIService();
-const edgegptService = new EdgeGptService()
+const edgegptService = new EdgeGptService();
 
 let lastPic: Message;
 let lastMsg: Message;
@@ -183,20 +184,11 @@ async function onMessage(msg: Message) {
 
     if (msg.text().indexOf('/news') === 0) {
       try {
-        let filebox = await FileBox.fromUrl('https://api.vvhan.com/api/60s');
-        if (filebox) {
-          await filebox.toFile('news.png', true).then(
-            result => {
-              msg.say(FileBox.fromFile('news.png'));
-            }
-          ).catch(
-            error => {
-              throw new Error("获取新闻失败");
-            }
-          )
-        }
+        let news = await downloadImage('https://api.03c3.cn/zb/', 'news.png');
+        let img = await FileBox.fromFile('news.png');
+        await msg.say(img);
       } catch (error) {
-        console.log(error + '');
+        console.log('Schedule runs failed\n', error)
       }
     }
 
