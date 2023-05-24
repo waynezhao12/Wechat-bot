@@ -16,18 +16,21 @@ export async function dailyNewsPush(bot: WechatyInterface) {
 	schedule.scheduleJob('00 30 8 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
-			let news = await downloadImage(api, 'news.png');
-			await roomList.forEach(room => {
-				try {
-					let img = FileBox.fromFile('news.png');
-					if (img) {
-						room.say(img);
-					}
-				} catch (error) {
-					console.log(error);
+			await downloadImage(api, 'news.png').then(
+				res => {
+					roomList.forEach(async room => {
+						try {
+							await room.say(FileBox.fromFile('news.png'));
+						} catch (error) {
+							console.log(error);
+						}
+					})
 				}
-			})
-
+			).catch(
+				err => {
+					throw new Error(err);
+				}
+			)
 		} catch (error) {
 			console.log('Schedule runs failed\n', error)
 		}
@@ -43,7 +46,7 @@ export async function downloadImage(url, image_path) {
 			new Promise((resolve, reject) => {
 				response.data
 					.pipe(fs.createWriteStream(image_path))
-					.on('finish', () => resolve(image_path))
+					.on('finish', () => resolve(true))
 					.on('error', e => reject(e));
 			}),
 	)
