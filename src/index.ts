@@ -183,10 +183,10 @@ async function onMessage(msg: Message) {
 
     if (msg.text().indexOf('/news') === 0) {
       try {
-        await downloadImage('https://api.03c3.cn/zb/', 'news.png').then(
-          async res => {
+        await downloadImage('https://api.vvhan.com/api/60s', 'news.png').then(
+          res => {
             try {
-              await msg.say(FileBox.fromFile('news.png'));
+              msg.say(FileBox.fromFile('news.png'));
             } catch (error) {
               console.log(error);
             }

@@ -16,11 +16,11 @@ export async function dailyNewsPush(bot: WechatyInterface) {
 	schedule.scheduleJob('00 30 8 * * *', async () => {
 		const roomList = await bot.Room.findAll();
 		try {
-			await downloadImage(api, 'news.png').then(
+			await downloadImage(api2, 'news.png').then(
 				res => {
 					roomList.forEach(async room => {
 						try {
-							await room.say(FileBox.fromFile('news.png'));
+							room.say(FileBox.fromFile('news.png'));
 						} catch (error) {
 							console.log(error);
 						}
