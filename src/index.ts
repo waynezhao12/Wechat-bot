@@ -23,7 +23,7 @@ import { ChatGPTAPI } from 'chatgpt';
 import { pngValidator } from 'png-validator';
 
 import { weatherPush, timeTexts, warningPush, weatherPushFunc, earthquakePush } from './schedule-service/schedule-service.js';
-import { dailyNewsPush, downloadImage } from './schedule-service/daily-news-service.js';
+import { dailyNewsPush } from './schedule-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
@@ -182,23 +182,21 @@ async function onMessage(msg: Message) {
     }
 
     if (msg.text().indexOf('/news') === 0) {
-      try {
-        await downloadImage('https://api.vvhan.com/api/60s', 'news.png').then(
-          res => {
-            try {
-              msg.say(FileBox.fromFile('news.png'));
-            } catch (error) {
-              console.log(error);
-            }
-          }
-        ).catch(
-          err => {
-            throw new Error(err);
-          }
-        )
-      } catch (error) {
-        console.log('Schedule runs failed\n', error)
-      }
+      await axios({ url: 'https://api.vvhan.com/api/60s', method: 'GET', responseType: 'stream' }).then(
+        response =>
+          new Promise((resolve, reject) => {
+            response.data
+              .pipe(fs.createWriteStream('news.png'))
+              .on('error', e => reject(e))
+              .once('close', async () => {
+                try {
+                  await msg.say(FileBox.fromFile('news.png'));
+                } catch (error) {
+                  console.log('Schedule runs failed\n', error)
+                }
+              });
+          }),
+      )
     }
 
     if (msg.text().indexOf('/地震') === 0) {
