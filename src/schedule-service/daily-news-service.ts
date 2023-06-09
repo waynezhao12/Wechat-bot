@@ -35,6 +35,10 @@ export async function dailyNewsPush(bot: WechatyInterface) {
 							}
 						});
 				}),
+		).catch(
+			err => {
+				console.log(err + '');
+			}
 		)
 	})
 }

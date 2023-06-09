@@ -196,6 +196,10 @@ async function onMessage(msg: Message) {
                 }
               });
           }),
+      ).catch(
+        err => {
+          msg.say('接口挂了！');
+        }
       )
     }
 
