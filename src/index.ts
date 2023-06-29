@@ -190,9 +190,11 @@ async function onMessage(msg: Message) {
               .on('error', e => reject(e))
               .once('close', async () => {
                 try {
-                  await msg.say(FileBox.fromFile('news.png'));
+                  msg.say('正在发送新闻');
+                  msg.say(FileBox.fromFile('news.png'));
                 } catch (error) {
                   console.log('Schedule runs failed\n', error)
+                  msg.say('发送新闻失败');
                 }
               });
           }),
@@ -311,12 +313,16 @@ async function onMessage(msg: Message) {
 function checkRepeatMsg(msg: Message) {
   if (lastMsg) {
     if (lastMsg.text() === msg.text()) {
-      // console.log('same msg');
+      console.log('same msg');
       sameMsgCount += 1;
       if (sameMsgCount === 2) {
         let room = msg.room();
         if (room) {
-          msg.forward(room);
+          msg.forward(room).catch(
+            err => {
+              console.log(err + '');
+            }
+          )
         }
         sameMsgCount = -1;
       }
