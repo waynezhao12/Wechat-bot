@@ -182,7 +182,7 @@ async function onMessage(msg: Message) {
     }
 
     if (msg.text().indexOf('/news') === 0) {
-      await axios({ url: 'https://api.vvhan.com/api/60s', method: 'GET', responseType: 'stream' }).then(
+      await axios({ url: 'https://api.03c3.cn/zb/', method: 'GET', responseType: 'stream' }).then(
         response =>
           new Promise((resolve, reject) => {
             response.data

@@ -14,7 +14,7 @@ const api2 = 'https://api.vvhan.com/api/60s';
 
 export async function dailyNewsPush(bot: WechatyInterface) {
 	schedule.scheduleJob('00 30 08 * * *', async () => {
-		await axios({ url: api2, method: 'GET', responseType: 'stream' }).then(
+		await axios({ url: api, method: 'GET', responseType: 'stream' }).then(
 			response =>
 				new Promise((resolve, reject) => {
 					response.data
