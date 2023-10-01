@@ -13,7 +13,7 @@ interface Holiday {
 
 const nextNewYear: Holiday = {
 	name: '元旦节',
-	date: new Date('2022-12-31')
+	date: new Date('2024-01-01')
 }
 
 export async function getHoliday(bot: WechatyInterface) {
