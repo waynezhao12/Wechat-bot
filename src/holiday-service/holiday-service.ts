@@ -39,7 +39,7 @@ export async function getHoliday(bot: WechatyInterface) {
 									await room.say(`距离${newHoliday.name}假期还有${daysBetween(formattedToday, newHoliday.date)}天`);
 								})
 								break;
-							} else if (formattedToday == newHoliday.date) {
+							} else if (formattedToday.getTime() == newHoliday.date.getTime()) {
 								roomList.forEach(async room => {
 									await sleep(1000);
 									await room.say(`今天是${newHoliday.name}，别忘记关闹钟哦`);
@@ -85,7 +85,7 @@ async function getNextYearHoliday(bot: WechatyInterface, roomList: RoomInterface
 							await room.say(`距离${newHoliday.name}假期还有${daysBetween(formattedToday, newHoliday.date)}天`);
 						})
 						break;
-					} else if (formattedToday == newHoliday.date) {
+					} else if (formattedToday.getTime() == newHoliday.date.getTime()) {
 						roomList.forEach(async room => {
 							await sleep(1000);
 							await room.say(`今天是${newHoliday.name}，别忘记关闹钟哦`);
