@@ -9,7 +9,7 @@ import { WechatyInterface } from 'wechaty/impls';
 import axios from 'axios';
 import { FileBox } from 'file-box';
 
-const api = 'https://api.03c3.cn/zb/';
+const api = 'https://api.jun.la/60s.php?format=image';
 const api2 = 'https://api.vvhan.com/api/60s';
 
 export async function dailyNewsPush(bot: WechatyInterface) {

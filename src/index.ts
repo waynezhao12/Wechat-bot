@@ -182,7 +182,7 @@ async function onMessage(msg: Message) {
     }
 
     if (msg.text().indexOf('/news') === 0) {
-      await axios({ url: 'https://api.03c3.cn/zb/', method: 'GET', responseType: 'stream' }).then(
+      await axios({ url: 'https://api.jun.la/60s.php?format=image', method: 'GET', responseType: 'stream' }).then(
         response =>
           new Promise((resolve, reject) => {
             response.data
