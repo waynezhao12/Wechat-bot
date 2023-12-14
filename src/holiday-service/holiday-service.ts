@@ -3,7 +3,7 @@ import { RoomInterface, WechatyInterface } from 'wechaty/impls';
 import axios from 'axios';
 
 
-const holidayApi = 'http://api.tianapi.com/jiejiari/index?';
+const holidayApi = 'https://apis.tianapi.com/jiejiari/index?';
 const apiKey = process.env.TIANAPI_API_KEY;
 
 interface Holiday {
@@ -28,7 +28,7 @@ export async function getHoliday(bot: WechatyInterface) {
 
 			await getHolidayList(yyyy).then(
 				async res => {
-					let newslist = res.newslist;
+					let newslist = res.list;
 					if (newslist && newslist.length >= 0) {
 						for (const [index, element] of newslist.entries()) {
 							const firstDay = new Date(element.vacation.split('|')[0]);
@@ -74,7 +74,7 @@ async function getNextYearHoliday(bot: WechatyInterface, roomList: RoomInterface
 
 	await getHolidayList(nextyyyy).then(
 		res => {
-			let newslist = res.newslist || null;
+			let newslist = res.list || null;
 			if (newslist && newslist.length >= 0) {
 				for (const [element, index] of newslist.entries()) {
 					const firstDay = new Date(element.vacation.split('|')[0]);

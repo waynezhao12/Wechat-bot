@@ -398,9 +398,9 @@ async function queryFurlPrice(msg: Message, room: Room) {
   const who = msg.talker();
   if (cityIndex !== -1 && cityIndex === msg.text().length - 2) {
     const name = msg.text().slice(10, cityIndex);
-    await axios.get(encodeURI(`http://api.tianapi.com/oilprice/index?key=${process.env.TIANAPI_API_KEY}&prov=${name}`)).then(
+    await axios.get(encodeURI(`https://apis.tianapi.com/oilprice/index?key=${process.env.TIANAPI_API_KEY}&prov=${name}`)).then(
       res => {
-        const price = res.data.newslist[0];
+        const price = res.data.result;
         if (price) {
           let priceText =
             `${name}油价：
