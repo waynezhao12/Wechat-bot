@@ -17,7 +17,11 @@ const nextNewYear: Holiday = {
 }
 
 export async function getHoliday(bot: WechatyInterface) {
-	schedule.scheduleJob('01 00 00 * * *', async () => {
+	let rule = new schedule.RecurrenceRule();
+	rule.hour = 0;
+	rule.minute = 0;
+	rule.second = 0;
+	schedule.scheduleJob(rule, async () => {
 		const roomList = await bot.Room.findAll();
 		try {
 			const today = new Date();
