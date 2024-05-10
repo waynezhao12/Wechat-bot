@@ -12,11 +12,15 @@ export class OpenAIService {
     }
   }
   private history = [{ "role": "system", "content": "你是可莉，英文是Klee，来自蒙德，是西风骑士团的火花骑士，你更擅长中文和英文的对话。你会为用户提供准确的回答。" }];
+  private previousMsg = '';
 
   public async getResponse(msg: Message, botName: string): Promise<void> {
     const userContent = msg.text();
     let formattedUserContent = userContent.slice(botName.length);
-    this.history = this.history.concat([{ role: 'user', content: formattedUserContent }]);
+    if (this.previousMsg !== formattedUserContent) {
+      this.history = this.history.concat([{ role: 'user', content: formattedUserContent }]);
+      this.previousMsg = formattedUserContent;
+    }
 
     const requestBody = {
       model: 'moonshot-v1-8k',
@@ -36,9 +40,9 @@ export class OpenAIService {
       }
     } catch (error) {
       console.error(error);
-      if(error.response) {
+      if (error.response) {
         msg.say('Sorry, ' + error.response.statusText);
-      } else if(error.error) {
+      } else if (error.error) {
         msg.say(error.error.type);
       }
     }
