@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "WECHATY_PUPPET": "wechaty-puppet-wechat",
   "scripts": {
     "start": "npx tsx watch src/index.ts"
   },

@@ -14,6 +14,8 @@ import {
   log,
   Room,
 } from 'wechaty';
+import { PuppetWeChat } from 'wechaty-puppet-wechat'
+
 import qrcodeTerminal from 'qrcode-terminal';
 import axios from 'axios';
 import { FileBox } from 'file-box';
@@ -44,9 +46,9 @@ import { EdgeGptService } from './openai/edgegpt-service.js';
 const bot = WechatyBuilder.build({
   name: 'wechaty-puppet-wechat',
   // puppet: 'wechaty-puppet-wechat',
-  // puppetOptions: {
-  //   uos: true  // 开启uos协议
-  // },
+  puppetOptions: {
+    uos: true  // 开启uos协议
+  },
 });
 
 bot.on('scan', onScan);
