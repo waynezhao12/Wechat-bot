@@ -42,7 +42,7 @@ let sessionToken = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..r_Pq22XZfpEp-zdl.7V
 // const conversationPool = new Map();
 
 const bot = WechatyBuilder.build({
-  name: 'wechaty-puppet-wechat',
+  name: 'klee-bot',
   puppet: 'wechaty-puppet-wechat',
   puppetOptions: {
     uos: true  // 开启uos协议
@@ -103,6 +103,8 @@ function onLogout(user: Contact) {
 
 async function onMessage(msg: Message) {
   log.info('Receive Message', [msg.text(), msg.type().toString()]);
+  const botName = `@${bot.currentUser.name()} `;
+  // log.info('Bot Name', botName);
   if (msg.age() <= 60) {
     if (!msg.self()) {
       checkRepeatMsg(msg);
@@ -133,7 +135,7 @@ async function onMessage(msg: Message) {
         searchAnime(lastPic);
       } else if (msg.text().includes('油价')) {
         queryFurlPrice(msg, room);
-      } else if (msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == '' || msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) == ' ') {
+      } else if (msg.text().slice(msg.text().indexOf(botName) + botName.length) == '' || msg.text().slice(msg.text().indexOf(botName) + botName.length) == ' ') {
         rainbowFart(msg, room);
       } else {
         if (!msg.self()) {
@@ -142,8 +144,8 @@ async function onMessage(msg: Message) {
           // } else {
           //   openaiService.getResponse(msg);
           // }
-          edgegptService.getResponse(msg);
-          // openaiService.getResponse(msg);
+          // edgegptService.getResponse(msg);
+          openaiService.getResponse(msg, botName);
         }
       }
     }

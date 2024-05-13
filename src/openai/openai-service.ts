@@ -1,51 +1,50 @@
-import { Message } from 'wechaty';
-import { Configuration, OpenAIApi } from 'openai';
+import { Message, log } from 'wechaty';
+// import OpenAI from 'openai';
 import axios from 'axios';
-import HttpsProxyAgent from 'https-proxy-agent';
+// import HttpsProxyAgent from 'https-proxy-agent';
 
-const httpsAgent = HttpsProxyAgent({ host: "127.0.0.1", port: "7890" });
+// const httpsAgent = HttpsProxyAgent({ host: "127.0.0.1", port: "7890" });
 
 export class OpenAIService {
-  // private configuration = new Configuration({
-  //   apiKey: 'process.env.OPENAI_API_KEY',
-  // });
-  // private openai = new OpenAIApi(this.configuration);
+  private config = {
+    headers: {
+      'Authorization': `Bearer ${process.env.MOONSHOT_API_KEY}`
+    }
+  }
+  private history = [{ "role": "system", "content": "你是可莉，英文是Klee，来自蒙德，是西风骑士团的火花骑士，你更擅长中文和英文的对话。你会为用户提供准确的回答。" }];
+  private previousMsg = '';
 
-  public async getResponse(msg: Message): Promise<any> {
-    // let completion = await this.openai.createChatCompletion({
-    //   model: "gpt-3.5-turbo",
-    //   messages: [{ role: "user", content: msg.text() }],
-    // });
-    // let answer = await completion.data.choices[0].message?.content;
-    // console.log(answer);
+  public async getResponse(msg: Message, botName: string): Promise<void> {
+    const userContent = msg.text();
+    let formattedUserContent = userContent.slice(botName.length);
+    if (this.previousMsg !== formattedUserContent) {
+      this.history = this.history.concat([{ role: 'user', content: formattedUserContent }]);
+      this.previousMsg = formattedUserContent;
+    }
 
-    // await msg.say(answer + '');
-    let config = {
-      headers: {
-        'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY
+    const requestBody = {
+      model: 'moonshot-v1-8k',
+      messages: this.history,
+      temperature: 0.3,
+    }
+
+    try {
+      const response = await axios.post('https://api.moonshot.cn/v1/chat/completions', requestBody, this.config)
+      console.log(response);
+      // console.log(response.data.choices[0]);
+      this.history = this.history.concat(response.data.choices[0].message)
+      const reply = (response.data.choices[0].message.content + '').replaceAll('\n\n', '\n');
+      msg.say(reply);
+      if (this.history.length > 6) {
+        this.history.splice(1, 1);
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        msg.say('Sorry, ' + error.response.statusText);
+      } else if (error.error) {
+        msg.say(error.error.type);
       }
     }
-    let requestBody = {
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: msg.text().slice(msg.text().indexOf('@问问神奇的可莉吧 ') + 11) }]
-    }
-    axios.create({ httpsAgent }).post('https://api.openai.com/v1/chat/completions', requestBody, config).then(
-      // axios.post('https://api.openai.com/v1/chat/completions', requestBody, config).then(
-      res => {
-        try {
-          if (res.data) {
-            // console.log(res.data);
-            console.log(res.data.choices[0]);
-            msg.say((res.data.choices[0].message.content + '').replaceAll('\n\n', ''));
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    ).catch(
-      err => {
-        console.log(err);
-      }
-    )
   }
 }
