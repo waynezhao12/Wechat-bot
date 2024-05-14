@@ -31,7 +31,6 @@ export class OpenAIService {
     try {
       const response = await axios.post('https://api.moonshot.cn/v1/chat/completions', requestBody, this.config)
       console.log(response);
-      // console.log(response.data.choices[0]);
       this.history = this.history.concat(response.data.choices[0].message)
       const reply = (response.data.choices[0].message.content + '').replaceAll('\n\n', '\n');
       msg.say(reply);

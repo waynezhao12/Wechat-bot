@@ -1,7 +1,6 @@
 import schedule from 'node-schedule';
 import axios from 'axios';
-import { Room } from 'wechaty';
-import { RoomInterface, WechatyInterface } from 'wechaty/impls';
+import { WechatyInterface } from 'wechaty/impls';
 import { WeatherService } from '../weather-query/weather-query.js';
 
 let cityList = ['徐州', '北京'];
@@ -110,7 +109,6 @@ export async function warningPush(bot: WechatyInterface) {
         const weatherService = new WeatherService();
         weatherService.getWarning(city).then(
           res => {
-            // console.log(res);
             let warningIds = res.warningIds;
             let weatherText = res.weatherText;
             if (warningIds && warningIds.length > 0) {

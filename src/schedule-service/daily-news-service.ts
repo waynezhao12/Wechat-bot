@@ -1,10 +1,6 @@
 import schedule from 'node-schedule';
 import fs from 'fs';
 
-import {
-	log,
-	Room,
-} from 'wechaty';
 import { WechatyInterface } from 'wechaty/impls';
 import axios from 'axios';
 import { FileBox } from 'file-box';

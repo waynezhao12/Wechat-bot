@@ -127,13 +127,13 @@ async function getHolidayList(year: string) {
 }
 
 function treatAsUTC(date): number {
-	var result = new Date(date);
+	let result = new Date(date);
 	result.setMinutes(result.getMinutes() - result.getTimezoneOffset());
 	return Number(result);
 }
 
 function daysBetween(startDate, endDate) {
-	var millisecondsPerDay = 24 * 60 * 60 * 1000;
+	let millisecondsPerDay = 24 * 60 * 60 * 1000;
 	return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
 }
 

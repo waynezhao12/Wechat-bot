@@ -1,5 +1,4 @@
 
-import { log, Message } from 'wechaty';
 import axios from 'axios';
 
 export class WeatherService {
@@ -97,20 +96,20 @@ export class WeatherService {
       }
     )
 
-    let dayIndex = 0;
+    let dayIndex: number;
 
     switch (whichDay) {
       case '今天':
-        dayIndex = 0
+        dayIndex = 0;
         break;
       case '明天':
-        dayIndex = 1
+        dayIndex = 1;
         break;
       case '后天':
-        dayIndex = 2
+        dayIndex = 2;
         break;
       default:
-        dayIndex = 0
+        dayIndex = 0;
         break;
     }
 
