@@ -1,8 +1,11 @@
 import schedule from 'node-schedule';
 import axios from 'axios';
+import { FileBox } from 'file-box';
+
 import { WechatyInterface } from 'wechaty/impls';
 import { WeatherService } from '../weather-query/weather-query.js';
 import { HolidayService } from '../holiday-service/holiday-service.js';
+import { DailyNewsService } from '../daily-news-service/daily-news-service.js';
 
 let cityList = ['徐州', '北京'];
 let warningIdList: Array<string> = [];
@@ -191,6 +194,28 @@ export async function holidayPush(bot: WechatyInterface) {
       console.log('Schedule runs failed\n', error)
     }
   });
+}
+
+export async function dailyNewsPush(bot: WechatyInterface) {
+  schedule.scheduleJob('00 30 08 * * *', async () => {
+    const roomList = await bot.Room.findAll();
+    const dailyNewsService = new DailyNewsService();
+    const result = dailyNewsService.getNews().then(result => {
+      try {
+        roomList.forEach(async room => {
+          try {
+            await room.say(FileBox.fromFile('news.png'));
+          } catch (error) {
+            console.log(error);
+          }
+        });
+      } catch (error) {
+        console.log('Schedule runs failed\n', error)
+      }
+    }).catch(error => {
+      console.error(error);
+    });
+  })
 }
 
 function sleep(ms) {

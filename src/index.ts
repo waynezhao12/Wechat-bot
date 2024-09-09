@@ -20,7 +20,7 @@ import { FileBox } from 'file-box';
 import fs from 'fs';
 
 import { weatherPush, timeTexts, warningPush, weatherPushFunc, earthquakePush } from './schedule-service/schedule-service.js';
-import { dailyNewsPush } from './schedule-service/daily-news-service.js';
+import { DailyNewsService } from './daily-news-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
@@ -81,7 +81,6 @@ function onScan(qrcode: string, status: ScanStatus) {
 async function onLogin(user: Contact) {
   log.info('Login Status', '%s login', user);
   weatherPush(bot);
-  dailyNewsPush(bot);
   timeTexts(bot);
   warningPush(bot);
   earthquakePush(bot);
@@ -174,28 +173,17 @@ async function onMessage(msg: Message) {
       edgegptService.getPainting(msg);
     }
 
-    if (msg.text().startsWith('/news')) {
-      await axios({ url: 'https://api.jun.la/60s.php?format=image', method: 'GET', responseType: 'stream' }).then(
-        response =>
-          new Promise((resolve, reject) => {
-            response.data
-              .pipe(fs.createWriteStream('news.png'))
-              .on('error', e => reject(e))
-              .once('close', async () => {
-                try {
-                  msg.say('正在发送新闻');
-                  msg.say(FileBox.fromFile('news.png'));
-                } catch (error) {
-                  console.log('Schedule runs failed\n', error)
-                  msg.say('发送新闻失败');
-                }
-              });
-          }),
-      ).catch(
-        err => {
-          msg.say('接口挂了！');
+    if (msg.text().startsWith('/2news')) {
+      const dailyNewsService = new DailyNewsService();
+      const result = dailyNewsService.getNews().then(async result => {
+        try {
+          await msg.say(FileBox.fromFile('news.png'));
+        } catch (error) {
+          console.log(error);
         }
-      )
+      }).catch(error => {
+        console.error(error);
+      });
     }
 
     if (msg.text().startsWith('/地震')) {
