@@ -173,7 +173,7 @@ async function onMessage(msg: Message) {
       edgegptService.getPainting(msg);
     }
 
-    if (msg.text().startsWith('/2news')) {
+    if (msg.text().startsWith('/news')) {
       const dailyNewsService = new DailyNewsService();
       const result = dailyNewsService.getNews().then(async result => {
         try {
