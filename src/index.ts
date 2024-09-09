@@ -26,7 +26,7 @@ import { WeatherService } from './weather-query/weather-query.js';
 import { PixivLookupService } from './pixiv-lookup/pixiv-lookup.js';
 import { AnimeLookupService } from './anime-lookup/anime-lookup.js';
 import { CalculatorService } from './calculator-service/calculator-service.js';
-import { getHoliday } from './holiday-service/holiday-service.js';
+import { HolidayService } from './holiday-service/holiday-service.js';
 import { AiPaintingService } from './ai-painting/ai-painting.js';
 import { OpenAIService } from './openai/openai-service.js';
 import { EdgeGptService } from './openai/edgegpt-service.js';
@@ -55,6 +55,7 @@ const calculatorService = new CalculatorService();
 const aiPaintingService = new AiPaintingService();
 const openaiService = new OpenAIService();
 const edgegptService = new EdgeGptService();
+// const holidayService = new HolidayService();
 
 let lastPic: Message;
 let lastMsg: Message;
@@ -84,7 +85,6 @@ async function onLogin(user: Contact) {
   timeTexts(bot);
   warningPush(bot);
   earthquakePush(bot);
-  getHoliday(bot);
 }
 
 function onLogout(user: Contact) {
@@ -142,6 +142,20 @@ async function onMessage(msg: Message) {
     if (msg.text() === '测试天气推送') {
       if (msg.room()) {
         weatherPushFunc('徐州', [msg.room()]);
+      }
+    }
+
+    if (msg.text() === '/测试节假日') {
+      if (msg.room()) {
+        const holidayService = new HolidayService();
+        try {
+          const res = await holidayService.getHoliday();
+          if (res !== 'null') {
+            await msg.say(res);
+          }
+        } catch (error) {
+          console.log('Schedule runs failed\n', error)
+        }
       }
     }
 

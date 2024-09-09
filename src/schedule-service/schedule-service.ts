@@ -2,6 +2,7 @@ import schedule from 'node-schedule';
 import axios from 'axios';
 import { WechatyInterface } from 'wechaty/impls';
 import { WeatherService } from '../weather-query/weather-query.js';
+import { HolidayService } from '../holiday-service/holiday-service.js';
 
 let cityList = ['徐州', '北京'];
 let warningIdList: Array<string> = [];
@@ -168,6 +169,28 @@ export async function earthquakePush(bot: WechatyInterface) {
       console.log('Schedule runs failed\n', error)
     }
   }, 1000 * 60 * 10);
+}
+
+export async function holidayPush(bot: WechatyInterface) {
+  let rule = new schedule.RecurrenceRule();
+  rule.hour = 0;
+  rule.minute = 0;
+  rule.second = 0;
+  schedule.scheduleJob(rule, async () => {
+    const roomList = await bot.Room.findAll();
+    const holidayService = new HolidayService();
+    try {
+      const res = await holidayService.getHoliday();
+      if (res !== 'null') {
+        roomList.forEach(async (room) => {
+          await sleep(1000);
+          await room.say(res);
+        });
+      }
+    } catch (error) {
+      console.log('Schedule runs failed\n', error)
+    }
+  });
 }
 
 function sleep(ms) {
