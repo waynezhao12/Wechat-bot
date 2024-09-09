@@ -19,7 +19,7 @@ import axios from 'axios';
 import { FileBox } from 'file-box';
 import fs from 'fs';
 
-import { weatherPush, timeTexts, warningPush, weatherPushFunc, earthquakePush } from './schedule-service/schedule-service.js';
+import { weatherPush, timeTexts, warningPush, weatherPushFunc, earthquakePush, holidayPush, dailyNewsPush } from './schedule-service/schedule-service.js';
 import { DailyNewsService } from './daily-news-service/daily-news-service.js';
 
 import { WeatherService } from './weather-query/weather-query.js';
@@ -84,6 +84,8 @@ async function onLogin(user: Contact) {
   timeTexts(bot);
   warningPush(bot);
   earthquakePush(bot);
+  holidayPush(bot);
+  dailyNewsPush(bot);
 }
 
 function onLogout(user: Contact) {
