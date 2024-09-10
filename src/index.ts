@@ -138,6 +138,10 @@ async function onMessage(msg: Message) {
       await msg.say('确实');
     }
 
+    if (msg.text().includes('加班') || msg.text().includes('在加')) {
+      workHard(msg);
+    }
+
     if (msg.text() === '测试天气推送') {
       if (msg.room()) {
         weatherPushFunc('徐州', [msg.room()]);
@@ -173,7 +177,7 @@ async function onMessage(msg: Message) {
       edgegptService.getPainting(msg);
     }
 
-    if (msg.text().startsWith('/2news')) {
+    if (msg.text().startsWith('/news')) {
       const dailyNewsService = new DailyNewsService();
       const result = dailyNewsService.getNews().then(async result => {
         try {
@@ -370,6 +374,20 @@ async function rainbowFart(msg: Message, room: Room) {
   ).catch(
     err => {
       room.say('干啥', who);
+    }
+  )
+}
+
+async function workHard(msg: Message) {
+  const apiKey = process.env.TIANAPI_API_KEY;
+  axios.get(`https://apis.tianapi.com/dgryl/index?key=${apiKey}`).then(
+    res => {
+      console.log(res);
+      msg.say(res.data.result.content);
+    }
+  ).catch(
+    err => {
+      console.log(err);
     }
   )
 }
