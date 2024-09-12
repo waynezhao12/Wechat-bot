@@ -180,16 +180,7 @@ async function onMessage(msg: Message) {
     }
 
     if (msg.text().startsWith('/news')) {
-      const dailyNewsService = new DailyNewsService();
-      const result = dailyNewsService.getNews().then(async result => {
-        try {
-          await msg.say(FileBox.fromFile('news.png'));
-        } catch (error) {
-          console.log(error);
-        }
-      }).catch(error => {
-        console.error(error);
-      });
+      getNews(msg);
     }
 
     if (msg.text().startsWith('/地震')) {
@@ -420,4 +411,28 @@ async function queryFurlPrice(msg: Message, room: Room) {
       }
     )
   }
+}
+
+async function getNews(msg: Message) {
+  const dailyNewsService = new DailyNewsService();
+  const result = dailyNewsService.callNewsApi().then(async result => {
+    fs.stat('news.png', async (err) => {
+      if (!err) {
+        try {
+          await msg.say(FileBox.fromFile('news.png'));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          fs.unlink('news.png', err => {
+            if (err) console.log(err);
+            console.log('删除图片成功');
+          });
+        }
+      } else if (err.code === 'ENOENT') {
+        console.log('news不存在');
+      }
+    });
+  }).catch(error => {
+    console.error(error);
+  });
 }
