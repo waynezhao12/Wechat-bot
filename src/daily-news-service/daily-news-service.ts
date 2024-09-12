@@ -15,37 +15,40 @@ export class DailyNewsService {
 		const yyyy = String(today.getFullYear());
 		const formattedToday = new Date(`${yyyy}-${mm}-${dd}`);
 
-		for (const api of this.apiList) {
-			return await new Promise((resolve, reject) => {
-				axios.get(api.text).then(
-					async response => {
-						switch (api.name) {
-							case '03c3':
-								if (formattedToday.getTime() === new Date(response.data.data.datetime).getTime()) {
-									return await this.callNewsImageApi(response.data.data.imageurl);
-								}
-								break;
-							case 'southerly':
-								if (formattedToday.getTime() === new Date(response.data.data.date).getTime()) {
-									return await this.callNewsImageApi(response.data.data.image);
-								}
-								break;
-							case 'xiaojun':
-								if (formattedToday.getTime() === new Date(response.data.imageTime).getTime()) {
-									return await this.callNewsImageApi(response.data.imageBaidu);
-								}
-								break;
-							default:
-								break;
-						}
-					})
-					.catch(error => {
-						reject(new Error('Failed to get news from ' + api.name + ': ' + error));
-					});
-			});
-		}
-		return await Promise.reject(new Error('全失败了'));
+		const promises = this.apiList.map(api => {
+			return axios.get(api.text).then(
+				async response => {
+					switch (api.name) {
+						case '03c3':
+							if (formattedToday.getTime() === new Date(response.data.data.datetime).getTime()) {
+								console.log(api.name);
+								return await this.callNewsImageApi(response.data.data.imageurl)
+							}
+							break;
+						case 'southerly':
+							if (formattedToday.getTime() === new Date(response.data.data.date).getTime()) {
+								console.log(api.name);
+								return await this.callNewsImageApi(response.data.data.image)
+							}
+							break;
+						case 'xiaojun':
+							if (formattedToday.getTime() === new Date(response.data.imageTime).getTime()) {
+								console.log(api.name);
+								return await this.callNewsImageApi(response.data.imageBaidu)
+							}
+							break;
+						default:
+							break;
+					}
+				})
+				.catch(error => {
+					console.log(new Error('Failed to get news from ' + api.name + ': ' + error));
+				});
+		});
+		const results = await Promise.all(promises);
+		return results.some(result => result);
 	}
+
 	async callNewsImageApi(api: string): Promise<boolean> {
 		return new Promise((resolve, reject) => {
 			axios.get(api, { responseType: 'stream' }).then(

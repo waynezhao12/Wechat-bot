@@ -179,7 +179,7 @@ async function onMessage(msg: Message) {
       edgegptService.getPainting(msg);
     }
 
-    if (msg.text().startsWith('/news')) {
+    if (msg.text().startsWith('/testnews')) {
       getNews(msg);
     }
 
@@ -415,9 +415,11 @@ async function queryFurlPrice(msg: Message, room: Room) {
 
 async function getNews(msg: Message) {
   const dailyNewsService = new DailyNewsService();
-  const result = dailyNewsService.callNewsApi().then(async result => {
+  await dailyNewsService.getNews().then(async result => {
+    console.log('loading news...')
     fs.stat('news.png', async (err) => {
       if (!err) {
+        console.log('图片存在');
         try {
           await msg.say(FileBox.fromFile('news.png'));
         } catch (error) {
