@@ -1,6 +1,7 @@
 import schedule from 'node-schedule';
 import axios from 'axios';
 import { FileBox } from 'file-box';
+import * as fs from 'fs';
 
 import { WechatyInterface } from 'wechaty/impls';
 import { WeatherService } from '../weather-query/weather-query.js';
@@ -201,17 +202,28 @@ export async function dailyNewsPush(bot: WechatyInterface) {
     const roomList = await bot.Room.findAll();
     const dailyNewsService = new DailyNewsService();
     const result = dailyNewsService.getNews().then(result => {
-      try {
-        roomList.forEach(async room => {
+      fs.stat('news.png', (err) => {
+        if (!err) {
           try {
-            await room.say(FileBox.fromFile('news.png'));
+            roomList.forEach(async room => {
+              try {
+                await room.say(FileBox.fromFile('news.png'));
+              } catch (error) {
+                console.log(error);
+              } finally {
+                fs.unlink('news.png', err => {
+                  if (err) console.log(err);
+                  console.log('删除图片成功');
+                });
+              }
+            });
           } catch (error) {
-            console.log(error);
+            console.log('Schedule runs failed\n', error)
           }
-        });
-      } catch (error) {
-        console.log('Schedule runs failed\n', error)
-      }
+        } else if (err.code === 'ENOENT') {
+          console.log('news不存在');
+        }
+      });
     }).catch(error => {
       console.error(error);
     });
