@@ -10,10 +10,6 @@ interface Holiday {
 export class HolidayService {
 	private holidayApi = 'https://apis.tianapi.com/jiejiari/index';
 	private apiKey = process.env.TIANAPI_API_KEY;
-	private nextNewYear: Holiday = {
-		name: '元旦节',
-		date: new Date('2024-01-01')
-	}
 
 	public async getHoliday(): Promise<string> {
 		const today = new Date();
@@ -62,6 +58,11 @@ export class HolidayService {
 		const nextyyyy = String(today.getFullYear() + 1);
 		const formattedToday = new Date(`${yyyy}-${mm}-${dd}`);
 
+		const nextNewYear: Holiday = {
+			name: '元旦',
+			date: new Date(`${nextyyyy}-01-01`)
+		}
+
 		return await this.getHolidayList(nextyyyy).then(
 			res => {
 				let result = 'null';
@@ -79,7 +80,7 @@ export class HolidayService {
 						}
 					}
 				} else {
-					result = `距离${this.nextNewYear.name}假期还有${this.daysBetween(formattedToday, this.nextNewYear.date)}天`;
+					result = `距离${nextNewYear.name}假期还有${this.daysBetween(formattedToday, nextNewYear.date)}天`;
 				}
 				return result;
 			}
