@@ -146,10 +146,10 @@ export async function earthquakePush(bot: WechatyInterface) {
     try {
       await axios.get('https://api.wolfx.jp/cenc_eqlist.json').then(
         res => {
-          if (res.data && res.data['No1'] && JSON.stringify(res.data['No1']) !== lastEarthquakeList) {
+          if (res.data?.['No1'] && JSON.stringify(res.data['No1']) !== lastEarthquakeList) {
             try {
               let eqObj = res.data['No1'];
-              if (eqObj && eqObj.latitude && eqObj.longitude && eqObj.magnitude && eqObj.location && eqObj.time && eqObj.depth) {
+              if (eqObj?.latitude && eqObj.longitude && eqObj.magnitude && eqObj.location && eqObj.time && eqObj.depth) {
                 let date = new Date(eqObj.time);
                 let script =
                   `北京时间${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}时${date.getMinutes()}分${date.getSeconds()}秒，位于 (${eqObj.latitude}, ${eqObj.longitude}) 的${eqObj.location}发生${eqObj.magnitude}级地震，震源深度${eqObj.depth}千米`;

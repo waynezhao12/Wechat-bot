@@ -1,41 +1,42 @@
-import schedule from 'node-schedule';
-import { RoomInterface, WechatyInterface } from 'wechaty/impls';
 import axios from 'axios';
-import { log } from 'wechaty';
 
 interface Holiday {
 	name: string;
 	date: Date;
 }
 export class HolidayService {
-	private holidayApi = 'https://apis.tianapi.com/jiejiari/index';
-	private apiKey = process.env.TIANAPI_API_KEY;
+	private readonly holidayApi = 'https://apis.tianapi.com/jiejiari/index';
+	private readonly apiKey = process.env.TIANAPI_API_KEY;
+
+	private readonly today = new Date();
+	private readonly dd = String(this.today.getDate()).padStart(2, '0');
+	private readonly mm = String(this.today.getMonth() + 1).padStart(2, '0'); //January is 0!
+	private readonly yyyy = String(this.today.getFullYear());
+	private readonly nextyyyy = String(this.today.getFullYear() + 1);
+	private readonly formattedToday = new Date(`${this.yyyy}-${this.mm}-${this.dd}`);
 
 	public async getHoliday(): Promise<string> {
-		const today = new Date();
-		const dd = String(today.getDate()).padStart(2, '0');
-		const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-		const yyyy = String(today.getFullYear());
-		const formattedToday = new Date(`${yyyy}-${mm}-${dd}`);
-
-		return await this.getHolidayList(yyyy).then(
+		return await this.getHolidayList(this.yyyy).then(
 			async res => {
 				let result = 'null';
-				let newslist = res.list;
-				if (newslist && newslist.length >= 0) {
-					const lastHoliday = newslist[newslist.length - 1].vacation.split('|')[0];
-					if (formattedToday > lastHoliday.date) {
-						result = await this.getNextYearHoliday();
-					} else {
-						for (const [index, element] of newslist.entries()) {
-							const firstDay = new Date(element.vacation.split('|')[0]);
-							let newHoliday: Holiday = { name: element.name, date: firstDay };
-							if (formattedToday < newHoliday.date) {
-								result = `距离${newHoliday.name}假期还有${this.daysBetween(formattedToday, newHoliday.date)}天`;
-								break;
-							} else if (formattedToday.getTime() == newHoliday.date.getTime()) {
-								result = `今天是${newHoliday.name}，别忘记关闹钟哦`;
-								break;
+				const status = res.update || false;
+				if (status) {
+					let newslist = res.list;
+					if (newslist && newslist.length >= 0) {
+						const lastHoliday = new Date(newslist[newslist.length - 1].vacation.split('|')[0]);
+						if (this.formattedToday > lastHoliday) {
+							result = await this.getNextYearHoliday();
+						} else {
+							for (const [index, element] of newslist.entries()) {
+								const firstDay = new Date(element.vacation.split('|')[0]);
+								let newHoliday: Holiday = { name: element.name, date: firstDay };
+								if (this.formattedToday < newHoliday.date) {
+									result = `距离${newHoliday.name}假期还有${this.daysBetween(this.formattedToday, newHoliday.date)}天`;
+									break;
+								} else if (this.formattedToday.getTime() == newHoliday.date.getTime()) {
+									result = `今天是${newHoliday.name}，别忘记关闹钟哦`;
+									break;
+								}
 							}
 						}
 					}
@@ -51,36 +52,33 @@ export class HolidayService {
 	}
 
 	async getNextYearHoliday(): Promise<string> {
-		const today = new Date();
-		const dd = String(today.getDate()).padStart(2, '0');
-		const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-		const yyyy = String(today.getFullYear());
-		const nextyyyy = String(today.getFullYear() + 1);
-		const formattedToday = new Date(`${yyyy}-${mm}-${dd}`);
-
 		const nextNewYear: Holiday = {
 			name: '元旦',
-			date: new Date(`${nextyyyy}-01-01`)
+			date: new Date(`${this.nextyyyy}-01-01`)
 		}
-
-		return await this.getHolidayList(nextyyyy).then(
+		return await this.getHolidayList(this.nextyyyy).then(
 			res => {
 				let result = 'null';
-				let newslist = res.list || null;
-				if (newslist && newslist.length >= 0) {
-					for (const [element, index] of newslist.entries()) {
-						const firstDay = new Date(element.vacation.split('|')[0]);
-						let newHoliday: Holiday = { name: element.name, date: firstDay };
-						if (formattedToday < newHoliday.date) {
-							result = `距离${newHoliday.name}假期还有${this.daysBetween(formattedToday, newHoliday.date)}天`;
-							break;
-						} else if (formattedToday.getTime() == newHoliday.date.getTime()) {
-							result = `今天是${newHoliday.name}，别忘记关闹钟哦`;
-							break;
+				const status = res.update || false;
+				if (status) {
+					let newslist = res.list || null;
+					if (newslist && newslist.length >= 0) {
+						for (const [element, index] of newslist.entries()) {
+							const firstDay = new Date(element.vacation.split('|')[0]);
+							let newHoliday: Holiday = { name: element.name, date: firstDay };
+							if (this.formattedToday < newHoliday.date) {
+								result = `距离${newHoliday.name}假期还有${this.daysBetween(this.formattedToday, newHoliday.date)}天`;
+								break;
+							} else if (this.formattedToday.getTime() == newHoliday.date.getTime()) {
+								result = `今天是${newHoliday.name}，别忘记关闹钟哦`;
+								break;
+							}
 						}
+					} else {
+						result = `距离${nextNewYear.name}还有${this.daysBetween(this.formattedToday, nextNewYear.date)}天`;
 					}
 				} else {
-					result = `距离${nextNewYear.name}假期还有${this.daysBetween(formattedToday, nextNewYear.date)}天`;
+					result = `距离${nextNewYear.name}还有${this.daysBetween(this.formattedToday, nextNewYear.date)}天`;
 				}
 				return result;
 			}

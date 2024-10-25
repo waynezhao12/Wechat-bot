@@ -140,7 +140,7 @@ async function onMessage(msg: Message) {
       await msg.say('确实');
     }
 
-    if (msg.text().includes('加班') || msg.text().includes('在加')) {
+    if (msg.text() === '加班' || msg.text() === '在加') {
       workHard(msg);
     }
 
