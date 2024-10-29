@@ -415,26 +415,22 @@ async function queryFurlPrice(msg: Message, room: Room) {
 
 async function getNews(msg: Message) {
   const dailyNewsService = new DailyNewsService();
-  await dailyNewsService.getNews().then(async result => {
-    console.log('loading news...')
-    fs.stat('news.png', async (err) => {
-      if (!err) {
-        console.log('图片存在');
-        try {
-          await msg.say(FileBox.fromFile('news.png'));
-        } catch (error) {
-          console.log(error);
-        } finally {
-          fs.unlink('news.png', err => {
-            if (err) console.log(err);
-            console.log('删除图片成功');
-          });
+  dailyNewsService.getNews().then(
+    result => {
+      console.log('获取新闻中')
+      fs.stat('news.png', async (err) => {
+        if (!err) {
+          console.log('图片存在');
+          try {
+            await msg.say(FileBox.fromFile('news.png'));
+          } catch (error) {
+            console.log(error);
+          }
+        } else if (err.code === 'ENOENT') {
+          console.log('news不存在');
         }
-      } else if (err.code === 'ENOENT') {
-        console.log('news不存在');
-      }
+      });
+    }).catch(error => {
+      console.error(error);
     });
-  }).catch(error => {
-    console.error(error);
-  });
 }
