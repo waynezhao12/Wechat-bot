@@ -63,7 +63,7 @@ export class HolidayService {
 				if (status) {
 					let newslist = res.list || null;
 					if (newslist && newslist.length >= 0) {
-						for (const [element, index] of newslist.entries()) {
+						for (const [index, element] of newslist.entries()) {
 							const firstDay = new Date(element.vacation.split('|')[0]);
 							let newHoliday: Holiday = { name: element.name, date: firstDay };
 							if (this.formattedToday < newHoliday.date) {
